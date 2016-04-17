@@ -1,0 +1,3 @@
+[submodule "subprojects/spirit2-schedule-parser"]
+	path = subprojects/spirit2-schedule-parser
+	url = https://github.com/P1tt187/spirit2-schedule-parser.git
