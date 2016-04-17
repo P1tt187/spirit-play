@@ -1,0 +1,50 @@
+@import model.schedule.data.Lecture
+@import org.fhs.spirit.scheduleparser.enumerations.EDuration
+@import org.fhs.spirit.scheduleparser.enumerations.ELectureKind
+@(lecture: Lecture)(implicit webJarAssets: WebJarAssets, request: Request[_], m: MessagesApi)
+
+  <div class="panel panel-info small smalltext ">
+    <div class="panel-body @{
+      EDuration.valueOf(lecture.duration) match {
+        case EDuration.EVEN => "bg-warning"
+        case EDuration.UNEVEN => "bg-primary"
+        case EDuration.WEEKLY => "bg-info"
+        case other => "bg-danger " + other
+      }
+    }" >
+      <div class="pull-left">
+      <small class="small">
+        <strong title="@lecture.longTitle">@lecture.lectureName</strong>
+      </small>
+      </div>
+        <div class="pull-right thumbnail">
+          <img src="@{
+            ELectureKind.valueOf(lecture.lectureKind) match {
+              case ELectureKind.EXERSISE => routes.Assets.versioned("images/tutorial.png")
+              case ELectureKind.LECTURE => routes.Assets.versioned("images/lecture.png")
+            }
+          } " />
+        </div>
+
+      <div class="clearfix"></div>
+      <div class="pull-left">
+      <small> @lecture.course.mkString(" ") </small>
+      </div>
+      @if(ELectureKind.valueOf(lecture.lectureKind) == ELectureKind.EXERSISE && lecture.groupIndex.nonEmpty ) {
+        <div class="pull-right">
+          <small>@m("SCHEDULE.GROUP"): @lecture.groupIndex </small>
+        </div>
+      }
+
+      <div class="clearfix"></div>
+
+      <div>  <small>@lecture.room</small>
+
+        <small>@lecture.docents.map{ d=> @d <br/>}</small>
+      </div>
+      @*<div class="pull-left"> @lecture.getAlternativeLectureRooms.map{ lr=>
+        <small><span class="label label-warning">@lr.getHouse:@lr.getNumber</span></small>
+      }</div> *@
+
+      </div>
+  </div>

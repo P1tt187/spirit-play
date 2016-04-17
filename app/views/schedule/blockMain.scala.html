@@ -1,0 +1,26 @@
+@(blockList:List[(Id, CourseName, Blockname)])(implicit webJarAssets: WebJarAssets, request: Request[_], m: MessagesApi)
+
+@main(m("SCHEDULE.BLOCKS")) {
+    <div class="page-header">
+      <h2 class="text-center"> @m("SCHEDULE.BLOCKS") </h2>
+    </div>
+
+  <table class="table table-striped table-bordered">
+    <thead class="text-info">
+      <th class="text-center"> @m("GENERAL.COURSES") </th>
+      <th class="text-center"> @m("SCHEDULE.EVENTNAME") </th>
+    </thead>
+    <tbody>
+      @blockList.map{ case (id, courseName, blockName) =>
+        <tr>
+        <td class="text-center" >
+          @courseName
+        </td>
+        <td class="text-center">
+          <a href="@routes.ScheduleController.block(id)"> @blockName </a>
+        </td>
+      </tr>
+      }
+    </tbody>
+  </table>
+  }

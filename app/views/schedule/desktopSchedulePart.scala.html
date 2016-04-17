@@ -1,0 +1,97 @@
+@import model.schedule.data.Lecture
+@import model.schedule.data.TimeRange
+@import org.fhs.spirit.scheduleparser.enumerations.EWeekdays
+@import views.html.schedule._
+@( timeranges: List[TimeRange],weekDays:List[EWeekdays] ,lectures:List[Lecture], customWeekdays:List[String] = List[String]())(implicit webJarAssets: WebJarAssets, request: Request[_], m: MessagesApi)
+<div class="form-inline">
+<div class="form-group">
+  Legende:
+</div>
+<div class="form-group">
+  <div class="showcase panel-info">
+    <div class="bg-info showcase-content">w</div>
+  </div>
+</div>
+<div class="form-group">
+  <div class="showcase">
+    <div class=" bg-warning showcase-content">g</div>
+  </div>
+</div>
+<div class="form-group">
+  <div class="showcase">
+    <div class="bg-primary showcase-content">ug</div>
+  </div>
+</div>
+<div class="form-group">
+  <div class="showcase">
+    <div class="img-thumbnail pull-left">
+     <img src="@routes.Assets.versioned("images/lecture.png")"/>
+    </div>
+    <div class="pull-right">
+      V
+    </div>
+  </div>
+</div>
+<div class="form-group">
+  <div class="showcase">
+    <div class="img-thumbnail pull-left">
+    <img src="@routes.Assets.versioned("images/tutorial.png")" />
+      </div>
+    <div class="pull-right">
+      Ü
+    </div>
+  </div>
+</div>
+</div>
+<div class="clearfix"></div>
+<table class="table table-bordered table-striped table-condensed">
+  <thead>
+    <tr class="text-info">
+      <th class="text-center">
+        @m("SCHEDULE.TIME")
+      </th>
+      @weekDays.map { wd =>
+        <th class="text-center" style="width: @{(100 -8) / weekDays.length}%;">
+          @m(wd.name())
+        </th>
+      }
+      @customWeekdays.map { cd =>
+        <th class="text-center">
+          @cd
+        </th>
+      }
+    </tr>
+  </thead>
+  <tbody>
+  @timeranges.map{ range =>
+<tr>
+  <td class="text-center" style="vertical-align: middle ; width: 8% ;">
+    @range
+  </td>
+  @weekDays.map { wd =>
+      <td style="horiz-align: center;">
+        <ul class="list-unstyled list-inline">
+          @lectures.filter(l => range.compare(l.time) == 0 && wd == EWeekdays.valueOf(l.time.weekday)).sortBy(l => (l.lectureName, l.duration)).map { l =>
+            <li style="width : 49% ;" class="@l.course.mkString(" ") @l.duration lecture hidden" data-uuid="@l.uuid">
+            @displayLecture(l)
+            </li>
+          }
+      </ul>
+    </td>
+  }
+  @customWeekdays.map { cd =>
+  <td style="horiz-align: center;">
+    <ul class="list-unstyled list-inline">
+    @lectures.filter(l => range.compare(l.time) == 0 && cd.equals(l.time.weekday)).sortBy(l => (l.lectureName, l.duration)).map { l =>
+      <li style="width : 49% ;" class="@l.course.mkString(" ") @l.duration lecture hidden" data-uuid="@l.uuid">
+      @displayLecture(l)
+      </li>
+    }
+    </ul>
+  </td>
+  }
+
+</tr>
+  }
+  </tbody>
+</table>

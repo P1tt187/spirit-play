@@ -1,0 +1,56 @@
+@*
+* This template takes a single argument, a String containing a
+* message to display.
+*@
+@(title: String, filterNames:List[(String, List[String])] , number:Long= -1, minNumber:Long = -1, searchTag:String = "-1")(implicit webJarAssets: WebJarAssets, request: Request[_], m: MessagesApi)
+@*
+* Call the the `main` template with two arguments. The first
+* argument is a `String` with the title of the page, the second
+* argument is an `Html` object containing the body of the page.
+*@
+@main(title) {
+  <div class="page-header text-center">
+    <h1>@m("NEWSPAGE.TITLE") </h1>
+  </div>
+  <div class="course-filter form-inline">
+    <div class="form-group">
+      <label for="course-select" class="control-label">@m("GENERAL.COURSES")</label>
+      <select class="form-control" id="course-select">
+        <option value="-1">@m("GENERAL.ALL")</option>
+        @filterNames.map{ case (name, semesters) =>
+          <optgroup label="@name">
+            @semesters.map { s=>
+              <option value="@s" @if(searchTag.equals(s)){selected}>@s</option>
+            }
+        </optgroup>
+        }
+      </select>
+    </div>
+    <div class="form-group">
+      <a href="@routes.NewsPageController.feed()" > <img src="@routes.Assets.versioned("images/feedicon.png")" /></a>
+    </div>
+  </div>
+  <div class="panel-group fade in" id="news-group">
+
+  </div>
+
+  <script>
+    var maxNewsNum = -1;
+    $.ajaxSetup({
+      cache: true
+    });
+
+      var newsStream = function (data) {
+        var newsGroup =  $('#news-group');
+         newsGroup.html( data.html + newsGroup.html() );
+        var url ="@routes.Assets.versioned("javascripts/shariff.complete.js")";
+        $.getScript(url);
+        if(maxNewsNum<data.number){
+          maxNewsNum = data.number;
+        }
+      };
+  </script>
+  <iframe class="hidden" id="streamselector" src="@routes.NewsPageController.newsStream(number,minNumber,searchTag)"></iframe>
+  <script type="text/javascript" src="@routes.Assets.versioned("javascripts/newspage.js")"></script>
+  @*<script type="text/java" src="@routes.Assets.versioned("javascripts/shariff.min.js")"></script> *@
+}

@@ -1,0 +1,44 @@
+setContent = () ->
+  $('.lecture').addClass('hidden')
+  if typeof localStorage != "undefined"
+    personalSchedule = encloseArray(JSON.parse(localStorage.getItem("personalSchedule") || "[]"))
+
+    personalSchedule.forEach( (element, pos) ->
+      $('[data-uuid="' + element + '"]').removeClass('hidden')
+    )
+  if $('#week-select').val() != 'WEEKLY'
+    if $('#week-select').val() == 'EVEN'
+      $('.UNEVEN').addClass('hidden')
+    if $('#week-select').val() == 'UNEVEN'
+      $('.EVEN').addClass('hidden')
+
+$('#week-select').change(setContent)
+
+encloseArray = (item) ->
+  if !$.isArray(item)
+    [item]
+  else
+    item
+
+$(window).load( () ->
+  setContent()
+  $('[data-dayindex="' + new Date().getDay() + '"]').tab('show');
+)
+
+$('.lecture').click( () ->
+  if typeof localStorage != "undefined"
+    personalSchedule = encloseArray(JSON.parse(localStorage.getItem("personalSchedule") || "[]"))
+    uuid = $(this).data('uuid')
+    indexes = encloseArray(personalSchedule.indexOf(uuid))
+    indexes.forEach((element, pos) ->
+      personalSchedule.splice(element,1)
+    )
+    localStorage.setItem("personalSchedule",JSON.stringify(personalSchedule))
+    $(this).addClass('hidden')
+)
+
+$('#deletePrivateData').click( () ->
+  if typeof localStorage != "undefined"
+    localStorage.clear()
+  window.location = window.location
+)

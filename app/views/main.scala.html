@@ -1,0 +1,103 @@
+@*
+* This template is called from the `index` template. This template
+* handles the rendering of the page header and body tags. It takes
+* two arguments, a `String` for the title of the page and an `Html`
+* object to insert into the body of the page.
+*@
+@(title: String)(content: Html)(implicit webJarAssets: WebJarAssets, request: Request[_], m: MessagesApi)
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    @* Here's where we render the page title `String`. *@
+    <title>@title</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel='stylesheet' href='@routes.WebJarAssets.at(webJarAssets.locate("css/bootstrap.min.css"))'>
+    <link rel='stylesheet' href='@routes.WebJarAssets.at(webJarAssets.locate("css/bootstrap-theme.min.css"))'>
+    <link rel='stylesheet' href='@routes.WebJarAssets.at(webJarAssets.locate("css/bootstrap-select.min.css"))'>
+
+    <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/main.css")">
+    <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/shariff.complete.css")">
+    <link rel="shortcut icon" type="image/png" href="@routes.Assets.versioned("images/favicon.ico")">
+    <link rel="alternate" type="application/rss+xml" title="@m("NEWSPAGE.TITLE")" href="@routes.NewsPageController.feed()">
+    <script type='text/javascript' src='@routes.WebJarAssets.at(webJarAssets.locate("jquery.min.js"))'></script>
+    <script type='text/javascript' src='@routes.WebJarAssets.at(webJarAssets.locate("bootstrap.min.js"))'></script>
+    <script type='text/javascript' src='@routes.WebJarAssets.at(webJarAssets.locate("bootstrap-select.min.js"))'></script>
+  </head>
+  <body>
+    <nav class="navbar navbar-default navbar-inverse navbar-static-top" role="navigation">
+      <div class="container-fluid">
+          <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse" aria-expanded="false">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="http://fsi.fh-schmalkalden.de" target="_blank">
+            <img alt="logo FSI" src="@routes.Assets.versioned("images/logo_fsi.png")">
+          </a>
+          <a class="navbar-brand" href="@routes.NewsPageController.index()">
+            <img alt="Spirit-News" src="@routes.Assets.versioned("images/logo_spirit.png")">
+          </a>
+        </div>
+
+          <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse">
+          <ul class="nav navbar-nav">
+            @navlink("News", routes.NewsPageController.index())
+            @navlink(m("SCHEDULE.PAGETITLE"), routes.ScheduleController.index())
+            @navlink(m("SCHEDULE.PERSONALSCHEDULE"), routes.ScheduleController.personalschedule())
+            @navlink(m("SCHEDULE.BLOCKS"), routes.ScheduleController.blocks())
+            @navlink(m("SHORTCUT.TITLE"), routes.ShortCutController.index())
+            @navlink(m("GROUPS.TITLE"), routes.GroupController.index())
+
+          </ul>
+          <ul class="nav navbar-nav navbar-right">
+            <li class="shariff-button twitter">
+              <a target="_blank" href="http://www.twitter.com/FhS_Spirit">
+                <span class="fa fa-twitter"></span>
+                <span class="share_text">Spirit on Twitter</span>
+              </a>
+            </li>
+            <li class="shariff-button facebook" >
+              <a class="fa fa-facebook" target="_blank" href="https://www.facebook.com/fhs.spirit/"> Spirit on Facebook </a>
+            </li>
+          </ul>
+        </div><!-- /.navbar-collapse -->
+      </div><!-- /.container-fluid -->
+    </nav>
+
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-md-12">
+        @content
+        </div>
+      </div>
+      <div class="row">
+        <footer class="col-md12 panel-footer text-center">
+          <p>Spirit - Version: @meta.BuildInfo.version</p>
+          <ul class="list-unstyled list-inline">
+            <li> <a href="https://www.playframework.com/">playframework</a> </li>
+            <li> <a href="http://getbootstrap.com/">bootstrap</a> </li>
+            <li> <a href="https://www.elastic.co/products/elasticsearch">elasticsearch</a> </li>
+            <li> <a href="http://www.webjars.org/">webjars</a> </li>
+            <li> <a href="https://github.com/heiseonline/shariff/">shariff</a></li>
+          </ul>
+        </footer>
+      </div>
+    </div>
+    <script>
+        $(window).on('load', function () {
+          $("select").attr('data-live-search', true).addClass('form-control').selectpicker({
+            //'selectedText' : 'cat',
+            'style': 'btn btn-primary btn-sm',
+            'showSubtext': true
+          });
+        });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,68 @@
+@import model.schedule.data.Group
+@import model.schedule.data.Student
+@(filterNames: List[(String, List[String])], groups: List[Group])(implicit webJarAssets: WebJarAssets, request: Request[_], m: MessagesApi)
+
+
+@main(m("GROUPS.TITLE")) {
+  <div class="row">
+    <div class="col-md-4">
+      <div class="course-filter form-inline">
+        <div class="form-group">
+          <label for="course-select" class="control-label">@m("GENERAL.COURSES")</label>
+          <select class="form-control" id="course-select">
+          @filterNames.map { case (name, semesters) =>
+          <optgroup label="@name">
+          @semesters.map { s =>
+            <option value="@s">@s</option>
+          }
+          </optgroup>
+          }
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+  @defining(filterNames.flatMap(_._2).sorted) { courseNames =>
+    @courseNames.map { course =>
+      @defining(groups.filter(_.className.equalsIgnoreCase(course))) { courseGroups =>
+        @defining(courseGroups.map(g => (g.groupType + g.className, courseGroups.filter(_.groupType.equals(g.groupType)))).toMap) { groupTypeMap =>
+          @groupTypeMap.keySet.toList.sortBy(gt => groupTypeMap(gt).size).map { gt =>
+            <div class="col-md-12 @course group hidden">
+              <table class="table table-condensed table-striped table-bordered">
+                <caption class="caption">
+                  <h3 class="text-center"> @groupTypeMap(gt).head.groupType </h3>
+                </caption>
+                <thead>
+                  <tr>
+                  @groupTypeMap(gt).sortBy(_.groupIndex).map { g =>
+                    <th class="text-info text-center" style="width: @{ 100.0/groupTypeMap(gt).size }%">
+                      @m("GROUPS.GROUP") : @g.groupIndex
+                    </th>
+                  }
+                  </tr>
+                </thead>
+                <tbody>
+                @groupTypeMap(gt).flatMap(_.students.indices).distinct.sorted.map { studentIndex =>
+                  <tr>
+                    @groupTypeMap(gt).sortBy(_.groupIndex).map { filteredGoups =>
+                      <td class="text-center">
+                        @defining(filteredGoups.students.sortBy(_.lastname).lift(studentIndex).getOrElse(Student("", ""))) { student =>
+                          @student.firstName @student.lastname
+                        }
+                      </td>
+                    }
+                  </tr>
+                }
+
+                </tbody>
+              </table>
+            </div>
+          }
+        }
+      }
+    }
+  }
+    <script type="text/javascript" src="@routes.Assets.versioned("javascripts/groups.js")"></script>
+  </div>
+}

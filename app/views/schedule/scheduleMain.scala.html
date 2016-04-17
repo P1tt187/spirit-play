@@ -1,0 +1,80 @@
+@import model.schedule.meta.EMode
+@import org.joda.time.DateTime
+@import org.joda.time.DateTimeZone
+@import org.joda.time.format.DateTimeFormat
+@import model.schedule.data.TimeRange
+@import org.fhs.spirit.scheduleparser.enumerations.EWeekdays
+@import model.schedule.data.Lecture
+@import views.html.schedule._
+@import org.fhs.spirit.scheduleparser.enumerations.EDuration
+@(title: String, filterNames: List[(String, List[String])], scheduleDate: DateTime, semestermode: EMode, timeranges: List[TimeRange],weekDays:List[EWeekdays] ,lectures:List[Lecture])(implicit webJarAssets: WebJarAssets, request: Request[_], m: MessagesApi)
+
+@df = @{
+  DateTimeFormat.forPattern("dd.MM.yyyy").withZone(DateTimeZone.forID("Europe/Berlin"))
+}
+
+@main(title) {
+
+  <div class="page-header">
+    <h1 class="text-center" > @m("SCHEDULE.PAGETITLE") </h1>
+  </div>
+  <div class="row">
+    <div class="col-md-4">
+      <div class="course-filter form-inline">
+        <div class="form-group">
+          <label for="course-select" class="control-label">@m("GENERAL.COURSES")</label>
+          <select class="form-control" id="course-select">
+            @filterNames.map { case (name, semesters) =>
+            <optgroup label="@name">
+            @semesters.map { s =>
+              <option value="@s">@s</option>
+            }
+            </optgroup>
+            }
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="week-select" class="control-label"> @m("GENERAL.WEEKKIND") </label>
+          <select class="form-control" id="week-select">
+            @EDuration.values().map { d =>
+              <option value="@d.name()"> @m(d.name()) </option>
+            }
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <button class="btn btn-primary" id="addSelectionBtn" title="@m("SCHEDULE.ADDTOPERSONAL")"> <span class="glyphicon glyphicon-star-empty"></span> </button>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <h3>@m("SCHEDULE.SCHEDULEDATE"): <span class="text-success">@df.print(scheduleDate) </span>,
+      @m("SEMESTER.KIND"): @if(semestermode == EMode.SUMMER){
+        <span class="text-warning"> @m("SEMESTER.SUMMER") </span>
+      }
+        @if(semestermode == EMode.WINTER){
+          <span class="text-primary"> @m("SEMESTER.WINTER") </span>
+        }
+      </h3>
+    </div>
+    <div class="col-md-4">
+      <h4>
+        <div> @m("SCHEDULE.WEEKBEGIN") <strong id="weekNumber"></strong> @m("SCHEDULE.WEEKMIDDLE") <span class="hidden text-warning" id="even"><strong>@m("EVEN")</strong></span> <span class="hidden text-primary" id="uneven"><strong>@m("UNEVEN")</strong></span> @m("WEEK")</div>
+      </h4>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-12 hidden-xs hidden-sm">
+      @desktopSchedulePart(timeranges, weekDays,lectures)
+    </div>
+    <div class="col-xs-12 visible-xs visible-sm">
+      @mobileSchedulePart(isOnline = true ,days=weekDays,lectures=lectures, timeRanges =timeranges)
+    </div>
+    <div class="col-md-12">
+      @alternativesPart(lectures)
+    </div>
+    <script type="text/javascript" src="@routes.Assets.versioned("javascripts/helpers.js")"></script>
+    <script type="text/javascript" src="@routes.Assets.versioned("javascripts/schedule.js")"></script>
+  </div>
+
+
+}

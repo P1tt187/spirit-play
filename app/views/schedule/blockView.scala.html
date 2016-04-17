@@ -1,0 +1,20 @@
+@import views.html.schedule._
+@import model.schedule.data.TimeRange
+@import org.fhs.spirit.scheduleparser.enumerations.EWeekdays
+@import model.schedule.data.Lecture
+@(title:String, timeranges: List[TimeRange],weekDays:List[EWeekdays] ,lectures:List[Lecture], customWeekdays:List[String])(implicit webJarAssets: WebJarAssets, request: Request[_], m: MessagesApi)
+
+@main(title) {
+  <div class="page-header text-center">
+    <h1> @title </h1>
+  </div>
+  <div class="row">
+    <div class="col-md-12 hidden-xs hidden-sm">
+    @desktopSchedulePart(timeranges, weekDays, lectures, customWeekdays)
+    </div>
+    <div class="col-xs-12 visible-xs visible-sm">
+    @mobileSchedulePart(isOnline = true, days = weekDays, lectures = lectures, timeRanges = timeranges, customWeekdays = customWeekdays)
+    </div>
+    <script type="text/javascript" src="@routes.Assets.versioned("javascripts/block.js")"></script>
+  </div>
+}

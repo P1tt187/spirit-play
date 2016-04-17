@@ -1,0 +1,17 @@
+@( shortcutMap:Map[String,String] )(implicit webJarAssets: WebJarAssets, request: Request[_], m: MessagesApi)
+
+@main(m("SHORTCUT.TITLE")) {
+  <table class="table table-bordered table-striped table-condensed">
+    <caption class="caption text-center">
+    <h4> @m("SHORTCUT.TITLE") </h4>
+    </caption>
+    <tbody>
+      @shortcutMap.toList.sortBy(_._1).map { case (key, value) =>
+          <tr>
+            <td style="width : 45%" class="text-right"> @key </td>
+            <td class="text-left"> @value </td>
+          </tr>
+      }
+    </tbody>
+  </table>
+}

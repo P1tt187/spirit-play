@@ -1,0 +1,99 @@
+@import model.schedule.data.{Lecture, TimeRange}
+@import org.fhs.spirit.scheduleparser.enumerations.EWeekdays
+@import views.html.schedule._
+@(isOnline: Boolean, days: List[EWeekdays], lectures: List[Lecture], timeRanges: List[TimeRange], customWeekdays: List[String] = List[String]())(implicit webJarAssets: WebJarAssets, request: Request[_], m: MessagesApi)
+
+<ul class="nav nav-tabs">
+  @days.map { day =>
+    @defining(if(isOnline) {
+      "mobile-online-pane" + day.name()
+    } else {
+      "mobile-local-pane" + day.name()
+    }) { dayIdName =>
+      <li role="presentation" @if(day == days.head) {
+        class="active"
+      } data-dayindex="@{day.indexOf() +1 }"><a aria-controls="@dayIdName" role="tab" data-toggle="tab" href="#@dayIdName"> @m(day.name()).substring(0, 3) </a> </li>
+    }
+  }
+  @customWeekdays.map { day =>
+    @defining(if(isOnline) {
+      "mobile-online-pane" + day
+    } else {
+      "mobile-local-pane" + day
+    }) { dayIdName =>
+      <li role="presentation" @if(day == customWeekdays.head) {
+        class="active" } ><a aria-controls="@dayIdName" role="tab" data-toggle="tab" href="#@dayIdName"> @day.substring(0, 3) </a> </li>
+    }
+  }
+</ul>
+
+<div class="clearfix"></div>
+<div class="tab-content">
+  @days.map { day =>
+    @defining(if(isOnline) {
+      "mobile-online-pane" + day.name()
+    } else {
+      "mobile-local-pane" + day.name()
+    }) { dayIdName =>
+      <div class="tab-pane fade @if(day == days.head) { in  active}" id="@dayIdName">
+        <div class="panel panel-info">
+          <div class="panel-heading"><div class="text-center"> @m(day.name()) </div></div>
+          <div class="panel-body">
+          @timeRanges.sorted.map { range =>
+            <div class="row table-bordered">
+              <div class="col-xs-3" > @range.toString </div>
+              <div class="col-xs-8">
+                <ul class="list-unstyled list-inline ">
+                @lectures.filter(l => range.compare(l.time) == 0 && day == EWeekdays.valueOf(l.time.weekday)).sortBy(l => (l.lectureName, l.duration)).map { l =>
+                  <li data-uuid="@l.uuid" class="listElement hidden @if(isOnline) {
+                    lecture @l.course.mkString(" ") @l.duration
+                  } else {
+                    localLecture
+                  } " style="min-width : 170px ; max-width : 220px">
+                  @displayLecture(l)
+                  </li>
+                }
+                </ul>
+              </div>
+            </div>
+          }
+          </div>
+        </div>
+      </div>
+    }
+  }
+
+  @customWeekdays.map { day =>
+    @defining(if(isOnline) {
+      "mobile-online-pane" + day
+    } else {
+      "mobile-local-pane" + day
+    }) { dayIdName =>
+      <div class="tab-pane fade @if(day == customWeekdays.head) { in  active}" id="@dayIdName">
+        <div class="panel panel-info">
+          <div class="panel-heading"><div class="text-center"> @m(day) </div></div>
+          <div class="panel-body">
+          @timeRanges.sorted.map { range =>
+            <div class="row table-bordered">
+              <div class="col-xs-3" > @range.toString </div>
+              <div class="col-xs-8">
+                <ul class="list-unstyled list-inline ">
+                @lectures.filter(l => range.compare(l.time) == 0 && day == l.time.weekday).sortBy(l => (l.lectureName, l.duration)).map { l =>
+                  <li data-uuid="@l.uuid" class="listElement hidden @if(isOnline) {
+                    lecture @l.course @l.duration
+                  } else {
+                    localLecture
+                  } " style="min-width : 170px ; max-width : 220px">
+                  @displayLecture(l)
+                  </li>
+                }
+                </ul>
+              </div>
+            </div>
+          }
+          </div>
+        </div>
+      </div>
+    }
+  }
+</div>

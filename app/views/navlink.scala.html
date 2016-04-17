@@ -1,0 +1,3 @@
+@(text:String, navlink:Call)(implicit request:Request[_])
+
+<li role="presentation" class="@if(request.path.equals(navlink.toString)){active}" ><a href="@navlink">@text</a></li>

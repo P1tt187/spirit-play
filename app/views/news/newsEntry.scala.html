@@ -1,0 +1,53 @@
+@import model.news.NewsEntry
+@import org.joda.time.format.DateTimeFormat
+@(newsEntry: NewsEntry, newsHost:String)(implicit webJarAssets: WebJarAssets, request: Request[_], m: MessagesApi)
+
+  @df = @{
+    DateTimeFormat.forPattern("dd.MM.yyyy HH.mm")
+  }
+
+  <div class="news panel panel-info">
+    <div class="panel-heading">
+      <h3 class="panel-title">
+        <div class=" pull-left">
+          <a href="@routes.NewsPageController.newsEntry(newsEntry.number)">
+          @newsEntry.title
+          </a>
+        </div>
+        <div class=" pull-right">
+          <div class="tagpanel pull-left text-left">
+          @newsEntry.tags.map { tag =>
+            <a href="@routes.NewsPageController.newsTag(if("Alle".equals(tag) || "alte_semester".equals(tag)) {
+              "-1"
+            } else {
+              tag
+            })" >
+            @{
+              "#%s".format(tag)
+            }
+            </a> <span class="glyphicon"></span>
+          }
+          </div>
+          <div class="number-part pull-right text-right">
+            <span class="glyphicon"></span>
+            <a class="text-right" href="@routes.NewsPageController.newsEntry(newsEntry.number)">
+              @m("NEWSPAGE.NR"): @newsEntry.number
+            </a>
+          </div>
+        </div>
+      </h3>
+    </div>
+    <div class="panel-body">
+      <div class="thumbnail ">
+      @Html(newsEntry.newsMessage)
+      </div>
+    </div>
+    <div class="panel-footer">
+      @newsEntry.author @df.print(newsEntry.pubDate) <br/>
+    <a href="@newsEntry.srcLink" target="_blank">Quelle</a> <br/>
+      <div data-url="@newsHost@routes.NewsPageController.newsEntry(newsEntry.number)"
+      data-title="@newsEntry.title"
+      data-twitter-via="FhS_Spirit" class="shariff" data-services="[&quot;twitter&quot;,&quot;facebook&quot;,&quot;googleplus&quot;,&quot;whatsapp&quot;]"></div>
+    </div>
+   @* <a href="@routes.Assets.versioned("javascripts/shariff.min.js")">@routes.Assets.versioned("javascripts/shariff.min.js")</a> *@
+  </div>
