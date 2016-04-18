@@ -11,6 +11,6 @@ $(window).load( () ->
     lastCourse = localStorage.getItem("lastCourse")
     if `lastCourse == null`
       lastCourse = $('#course-select').first().val()
-
+    $('#course-select').val(lastCourse)
   courseSelector()
 )
