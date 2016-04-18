@@ -4,7 +4,7 @@ version := "2.0.0-SNAPSHOT"
 
 lazy val scheduleParser = (project in file("subprojects/spirit2-schedule-parser"))
 
-lazy val root = (project in file(".")).enablePlugins(PlayScala).enablePlugins(SbtWeb).enablePlugins(BuildInfoPlugin).
+lazy val root = (project in file(".")).enablePlugins(PlayScala, LinuxPlugin).enablePlugins(SbtWeb).enablePlugins(BuildInfoPlugin).
   settings(
     buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
     buildInfoPackage := "meta"
@@ -37,3 +37,9 @@ routesGenerator := StaticRoutesGenerator
 scalacOptions ++= Seq("-feature", "-language:postfixOps", "-language:implicitConversions")
 
 CoffeeScriptKeys.sourceMap := true
+
+maintainer in Linux := "Fabian Markert "
+
+packageSummary in Linux := "Spirit News"
+
+packageDescription := "shows news and schedule"
