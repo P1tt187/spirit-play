@@ -1,27 +1,29 @@
 @import model.schedule.data.Lecture
-@(lectures:List[Lecture])(implicit webJarAssets: WebJarAssets, request: Request[_], m: MessagesApi)
+@(lectures: List[Lecture])(implicit webJarAssets: WebJarAssets, request: Request[_], m: MessagesApi)
 
 <table class="table table-bordered table-striped text-center">
   <caption class="text-center text-info"><h4>Alternativräume</h4></caption>
   <thead>
-    <th class="text-center text-info">
-      @m("SCHEDULE.DAY")
-    </th>
-    <th class="text-center text-info">
+    <tr>
+      <th class="text-center text-info">
+        @m("SCHEDULE.DAY")
+      </th>
+      <th class="text-center text-info">
       @m("GENERAL.WEEKKIND")
-    </th>
-    <th class="text-center text-info">
+      </th>
+      <th class="text-center text-info">
       @m("SCHEDULE.HOUR")
-    </th>
-    <th class="text-center text-info">
+      </th>
+      <th class="text-center text-info">
       @m("SCHEDULE.ROOM")
-    </th>
-    <th class="text-center text-info">
+      </th>
+      <th class="text-center text-info">
       @m("SCHEDULE.LECTURE")
-    </th>
+      </th>
+    </tr>
   </thead>
   <tbody>
-  @lectures.filter(_.alternatives.nonEmpty).map { l=>
+  @lectures.filter(_.alternatives.nonEmpty).map { l =>
     @l.alternatives.map { alt =>
       <tr data-uuid="@l.uuid" class="@l.course.mkString(" ") lecture hidden">
         <td>

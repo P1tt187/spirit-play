@@ -1,4 +1,5 @@
-@import model.schedule.data.{Lecture, TimeRange}
+@import model.schedule.data.Lecture
+@import model.schedule.data.TimeRange
 @import org.fhs.spirit.scheduleparser.enumerations.EWeekdays
 @import views.html.schedule._
 @(isOnline: Boolean, days: List[EWeekdays], lectures: List[Lecture], timeRanges: List[TimeRange], customWeekdays: List[String] = List[String]())(implicit webJarAssets: WebJarAssets, request: Request[_], m: MessagesApi)
