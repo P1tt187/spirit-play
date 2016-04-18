@@ -1,10 +1,12 @@
+import com.typesafe.sbt.packager.archetypes.ServerLoader
+
 name := """spirit-play"""
 
-version := "2.0.0-SNAPSHOT"
+version := "2.0.0"
 
 lazy val scheduleParser = (project in file("subprojects/spirit2-schedule-parser"))
 
-lazy val root = (project in file(".")).enablePlugins(PlayScala, LinuxPlugin).enablePlugins(SbtWeb).enablePlugins(BuildInfoPlugin).
+lazy val root = (project in file(".")).enablePlugins(PlayScala, LinuxPlugin, RpmPlugin).enablePlugins(SbtWeb).enablePlugins(BuildInfoPlugin).
   settings(
     buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
     buildInfoPackage := "meta"
@@ -13,7 +15,7 @@ lazy val root = (project in file(".")).enablePlugins(PlayScala, LinuxPlugin).ena
 scalaVersion := "2.11.8"
 
 libraryDependencies ++= Seq(
-
+  filters,
   cache,
   ws,
   "org.webjars" %% "webjars-play" % "2.5.0",
@@ -38,8 +40,18 @@ scalacOptions ++= Seq("-feature", "-language:postfixOps", "-language:implicitCon
 
 CoffeeScriptKeys.sourceMap := true
 
-maintainer in Linux := "Fabian Markert "
+maintainer := "Fabian Markert <f.markert87@gmail.com>"
 
 packageSummary in Linux := "Spirit News"
 
 packageDescription := "shows news and schedule"
+
+rpmRelease := Option(sys.props("rpm.buildNumber")) getOrElse "1"
+
+rpmVendor := "http://www.fsi.fh-schmalkalden.de"
+
+rpmUrl := Some("https://github.com/P1tt187/spirit-play")
+
+serverLoading in Rpm := ServerLoader.Systemd
+
+rpmLicense := Some("None")
