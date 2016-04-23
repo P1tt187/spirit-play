@@ -40,7 +40,7 @@ class ScheduleDownloadActor @Inject()(ws: WSClient, @Named("parseActor") parseAc
 
       val baseUrl = configuration.underlying.getString("schedule.baseUrl")
 
-      val lectureResults = uncachedCourseNames.  map {
+      val lectureResults = uncachedCourseNames.map {
         courseName =>
           val outcome =  "s_" + courseName + ".html"
           val httpResult = Await.result(ws.url(baseUrl + outcome).get(), 10 seconds)

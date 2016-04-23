@@ -24,8 +24,10 @@ trait SpiritHelper {
   protected var env: Environment = null
 
   @Inject()
-  @NamedCache("semester-mode-cache")
-  protected var semesterModeCache: CacheApi = null
+  protected var semesterModeCache: SemesterModeCache = null
+
+  @Inject()
+  protected var sessionCache : SessionCache = null
 
   protected def courseNames: List[(String, List[String])] = {
     semesterModeCache.getOrElse("courselist", 1 day) {

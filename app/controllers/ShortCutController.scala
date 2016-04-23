@@ -12,15 +12,17 @@ import views.html.shortcuts._
 
 class ShortCutController extends AbstractController {
 
-  def index() = Action {
-    implicit request =>
+  def index() = sessionCache.cached("shortcuts") {
+    Action {
+      implicit request =>
 
-      val courses = courseNames.flatMap(_._2)
+        val courses = courseNames.flatMap(_._2)
 
-      val allLectures = LectureDA.findAll[Lecture]() ++ ScheduleDA.findAll[Schedule]().flatMap(_.scheduleData)
-      val filteredLectures = allLectures.filter(l => courses.exists(c => l.course.map(_.toUpperCase).contains(c.toUpperCase())))
-      val titleMap = filteredLectures.map(l => (l.lectureName, l.longTitle)).toMap
-      Ok(shortcut(titleMap))
+        val allLectures = LectureDA.findAll[Lecture]() ++ ScheduleDA.findAll[Schedule]().flatMap(_.scheduleData)
+        val filteredLectures = allLectures.filter(l => courses.exists(c => l.course.map(_.toUpperCase).contains(c.toUpperCase())))
+        val titleMap = filteredLectures.map(l => (l.lectureName, l.longTitle)).toMap
+        Ok(shortcut(titleMap))
+    }
   }
 
 }

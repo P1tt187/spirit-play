@@ -62,14 +62,14 @@
       }
     </tr>
   </thead>
-  <tbody>
+  <tbody class="text-center">
   @timeranges.map{ range =>
 <tr>
   <td class="text-center" style="vertical-align: middle ; width: 8% ;">
     @range
   </td>
   @weekDays.map { wd =>
-      <td style="horiz-align: center;">
+      <td style="horiz-align: center; vertical-align: middle;">
         <ul class="list-unstyled list-inline">
           @lectures.filter(l => range.compare(l.time) == 0 && wd == EWeekdays.valueOf(l.time.weekday)).sortBy(l => (l.lectureName, l.duration)).map { l =>
             <li style="width : 49% ;" class="@l.course.mkString(" ") @l.duration lecture hidden" data-uuid="@l.uuid">
@@ -80,7 +80,7 @@
     </td>
   }
   @customWeekdays.map { cd =>
-  <td style="horiz-align: center;">
+  <td style="horiz-align: center; vertical-align: middle;">
     <ul class="list-unstyled list-inline">
     @lectures.filter(l => range.compare(l.time) == 0 && cd.equals(l.time.weekday)).sortBy(l => (l.lectureName, l.duration)).map { l =>
       <li style="width : 49% ;" class="@l.course.mkString(" ") @l.duration lecture hidden" data-uuid="@l.uuid">

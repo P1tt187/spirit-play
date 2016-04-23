@@ -19,7 +19,7 @@ import views.html.news._
   * This controller creates an `Action` to handle HTTP requests to the
   * application's home page.
   */
-class NewsPageController @Inject()(materializer: akka.stream.Materializer, cached: Cached) extends AbstractController {
+class NewsPageController @Inject()(materializer: akka.stream.Materializer) extends AbstractController {
 
 
   /**
@@ -28,10 +28,11 @@ class NewsPageController @Inject()(materializer: akka.stream.Materializer, cache
     * will be called when the application receives a `GET` request with
     * a path of `/`.
     */
-  def index = Action {
-    implicit request =>
-
-      Ok(views.html.news.index(m("NEWSPAGE.PAGETITLE"), courseNames))
+  def index = sessionCache.cached("news") {
+   Action {
+      implicit request =>
+        Ok(views.html.news.index(m("NEWSPAGE.PAGETITLE"), courseNames))
+    }
   }
 
   def newsStream(number: Long, minNumber: Long, searchTag: String) =
@@ -82,7 +83,7 @@ class NewsPageController @Inject()(materializer: akka.stream.Materializer, cache
     *
     * @return XML structure for feed
     */
-  def feed = cached("rssfeed") {
+  def feed =
     Action {
       implicit request =>
         val hostUrl = configuration.getString("spirit.host").getOrElse("http://localhost:9000")
@@ -138,7 +139,6 @@ class NewsPageController @Inject()(materializer: akka.stream.Materializer, cache
           </rss>
 
         Ok(rssFeed).as("application/rss+xml")
-    }
   }
 
 }

@@ -5,12 +5,10 @@ import java.util.Scanner
 import javax.inject._
 
 import akka.actor.Actor
-import akka.actor.Actor.Receive
 import helpers.SpiritHelper
 import logic.actors.schedule.ShortCutParseActor.ParseShortCuts
 import model.database.{LectureDA, ScheduleDA}
 import model.schedule.data.{Lecture, Schedule}
-import play.api.Logger
 import play.api.libs.ws.WSClient
 
 import scala.concurrent.Await
@@ -20,8 +18,10 @@ import scala.concurrent.duration._
   * @author fabian 
   *         on 10.04.16.
   */
-object ShortCutParseActor{
+object ShortCutParseActor {
+
   case object ParseShortCuts
+
 }
 
 @Singleton
@@ -38,7 +38,7 @@ class ShortCutParseActor @Inject()(ws: WSClient) extends Actor with SpiritHelper
     case ParseShortCuts =>
 
 
-      def removeWhitespace(str:String) = {
+      def removeWhitespace(str: String) = {
         str.replaceAll("\\p{javaSpaceChar}", "")
       }
 
@@ -47,8 +47,8 @@ class ShortCutParseActor @Inject()(ws: WSClient) extends Actor with SpiritHelper
       val allLectures = LectureDA.findAllExtended[Lecture]()
       val allBlocks = ScheduleDA.findAllExtended[Schedule]()
 
-      val result = Await.result( ws.url(baseurl + outcome).get(), 10 seconds )
-      if(result.status != 404){
+      val result = Await.result(ws.url(baseurl + outcome).get(), 10 seconds)
+      if (result.status != 404) {
         val html = result.bodyAsBytes.decodeString(StandardCharsets.ISO_8859_1.toString)
 
         var lectureTitles = Map[String, String]()
@@ -68,7 +68,7 @@ class ShortCutParseActor @Inject()(ws: WSClient) extends Actor with SpiritHelper
         }
         scanner.close()
 
-        allLectures.foreach{
+        allLectures.foreach {
           lec =>
             val id = lec.id
             val titlelong = lectureTitles.get(removeWhitespace(lec.doc.lectureName.trim)) match {
@@ -83,8 +83,8 @@ class ShortCutParseActor @Inject()(ws: WSClient) extends Actor with SpiritHelper
         allBlocks.foreach {
           block =>
             val id = block.id
-            val updatetBlocks = block.doc.scheduleData.map{
-              sd=>
+            val updatetBlocks = block.doc.scheduleData.map {
+              sd =>
                 val titleLong = lectureTitles.get(removeWhitespace(sd.lectureName)) match {
                   case Some(v) => v
                   case None =>
@@ -95,6 +95,7 @@ class ShortCutParseActor @Inject()(ws: WSClient) extends Actor with SpiritHelper
             ScheduleDA.update(id, block.doc.copy(scheduleData = updatetBlocks))
         }
       }
-
+      sessionCache.clear()
+      semesterModeCache.clear()
   }
 }

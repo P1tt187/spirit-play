@@ -22,7 +22,7 @@
     @defining(lecturesWithAlternatives.flatMap( _.alternatives.map(_.hour)).distinct.sorted) { hours =>
       @hours.map { h =>
         <tr>
-          <td>
+          <td style="vertical-align: middle;">
             @h
           </td>
           @weekDays.map { wd =>

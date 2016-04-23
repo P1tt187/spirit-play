@@ -2,7 +2,7 @@ package controllers
 
 import javax.inject._
 
-import helpers.SpiritHelper
+import helpers.{CacheHelper, SpiritHelper}
 import play.api.i18n.MessagesApi
 import play.api.mvc._
 

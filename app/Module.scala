@@ -1,6 +1,7 @@
 import java.time.Clock
 
 import com.google.inject.AbstractModule
+import helpers.{SemesterModeCache, SessionCache}
 import logic.actors.rss.{DeleteNewsActor, NewsReaderActor, RSSParseActor}
 import logic.actors.schedule._
 import logic.actors.spread.TweetActor
@@ -42,6 +43,9 @@ class Module extends AbstractModule with AkkaGuiceSupport {
     bind(classOf[MSchedule])
     bindActor[GroupParseActor]("groupParseActor")
     bindActor[TweetActor]("tweetActor")
+
+    bind(classOf[SemesterModeCache])
+    bind(classOf[SessionCache])
   }
 
 }

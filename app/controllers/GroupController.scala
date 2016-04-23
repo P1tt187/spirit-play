@@ -11,11 +11,13 @@ import views.html.groups._
   */
 class GroupController extends AbstractController {
 
-  def index() = Action {
-    implicit request =>
-      val groups = GroupDA.findByCourseNames(courseNames.flatMap(_._2))
+  def index() = sessionCache.cached("groups") {
+    Action {
+      implicit request =>
+        val groups = GroupDA.findByCourseNames(courseNames.flatMap(_._2))
 
-      Ok(displayGroups(courseNames, groups))
+        Ok(displayGroups(courseNames, groups))
+    }
   }
 
 }
