@@ -1,5 +1,5 @@
 setContent = () ->
-  $('.lecture').addClass('hidden')
+  $('.lecture, .alternative').addClass('hidden')
   if typeof localStorage != "undefined"
     personalSchedule = encloseArray(JSON.parse(localStorage.getItem("personalSchedule") || "[]"))
 

@@ -1,48 +1,64 @@
 @import model.schedule.data.Lecture
-@(lectures: List[Lecture])(implicit webJarAssets: WebJarAssets, request: Request[_], m: MessagesApi)
+@import org.fhs.spirit.scheduleparser.enumerations.EWeekdays
+@import org.fhs.spirit.scheduleparser.enumerations.EDuration
+@(lectures: List[Lecture], weekDays:List[EWeekdays])(implicit webJarAssets: WebJarAssets, request: Request[_], m: MessagesApi)
 
-<table class="table table-bordered table-striped text-center">
+<table class="table table-bordered text-center">
   <caption class="text-center text-info"><h4>Alternativräume</h4></caption>
   <thead>
-    <tr>
-      <th class="text-center text-info">
-        @m("SCHEDULE.DAY")
-      </th>
-      <th class="text-center text-info">
-      @m("GENERAL.WEEKKIND")
-      </th>
-      <th class="text-center text-info">
+  <tr>
+    <th class="text-center text-info">
       @m("SCHEDULE.HOUR")
+    </th>
+    @weekDays.map { wd =>
+      <th class="text-center text-info" style="width: @{(100 -1) / weekDays.length}%;">
+      @m(wd.name())
       </th>
-      <th class="text-center text-info">
-      @m("SCHEDULE.ROOM")
-      </th>
-      <th class="text-center text-info">
-      @m("SCHEDULE.LECTURE")
-      </th>
-    </tr>
+    }
+  </tr>
   </thead>
   <tbody>
-  @lectures.filter(_.alternatives.nonEmpty).map { l =>
-    @l.alternatives.map { alt =>
-      <tr data-uuid="@l.uuid" class="@l.course.mkString(" ") lecture hidden">
-        <td>
-        @m(alt.weekday)
-        </td>
-        <td>
-        @m(alt.duration)
-        </td>
-        <td>
-        @alt.hour
-        </td>
-        <td>
-        @alt.room
-        </td>
-        <td>
-        @alt.lecture
-        </td>
-      </tr>
+    @defining(lectures.filter(_.alternatives.nonEmpty)) { lecturesWithAlternatives =>
+    @defining(lecturesWithAlternatives.flatMap( _.alternatives.map(_.hour)).distinct.sorted) { hours =>
+      @hours.map { h =>
+        <tr>
+          <td>
+            @h
+          </td>
+          @weekDays.map { wd =>
+            <td>
+              <ul class="list-inline list-unstyled">
+              @lecturesWithAlternatives.filter( lec => lec.alternatives.exists( alt => EWeekdays.valueOf(alt.weekday) == wd )).map{ l=>
+                @l.alternatives.filter(alt => EWeekdays.valueOf(alt.weekday) == wd  && alt.hour.equals(h)).sortBy( alt => (alt.lecture, alt.duration) ).map { alt=>
+                  <li data-uuid="@l.uuid" class="@l.course.mkString(" ") alternative hidden">
+                    <div class="panel panel-info">
+                      <div class="panel-body @{
+                        EDuration.valueOf(alt.duration) match {
+                          case EDuration.EVEN => "bg-warning"
+                          case EDuration.UNEVEN => "bg-primary"
+                          case EDuration.WEEKLY => "bg-info"
+                          case other => "bg-danger " + other
+                        }
+                      }">
+                        <div class="pull-left">
+                          @alt.lecture
+                        </div>
+                        <div class="clearfix"></div>
+                        <div class="pull-left">
+                          @alt.room
+                        </div>
+                      </div>
+                    </div>
+                  </li>
+                }
+              }
+              </ul>
+            </td>
+          }
+        </tr>
+      }
     }
   }
   </tbody>
 </table>
+

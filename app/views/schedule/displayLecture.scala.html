@@ -13,9 +13,7 @@
       }
     }" >
       <div class="pull-left">
-      <small class="small">
-        <strong title="@lecture.longTitle">@lecture.lectureName</strong>
-      </small>
+        <abbr title="@lecture.longTitle">@lecture.lectureName</abbr>
       </div>
         <div class="pull-right thumbnail">
           <img src="@{
@@ -27,20 +25,19 @@
         </div>
 
       <div class="clearfix"></div>
-      <div class="pull-left">
+      @*<div class="pull-left">
       <small> @lecture.course.mkString(" ") </small>
-      </div>
+      </div>*@
       @if(ELectureKind.valueOf(lecture.lectureKind) == ELectureKind.EXERSISE && lecture.groupIndex.nonEmpty ) {
-        <div class="pull-right">
-          <small>@m("SCHEDULE.GROUP"): @lecture.groupIndex </small>
+        <div class="pull-left">
+          @m("SCHEDULE.GROUP"): @lecture.groupIndex
         </div>
       }
 
       <div class="clearfix"></div>
 
-      <div>  <small>@lecture.room</small>
-
-        <small>@lecture.docents.map{ d=> @d <br/>}</small>
+      <div>@lecture.room
+        @lecture.docents.map{ d=> @d <br/>}
       </div>
       @*<div class="pull-left"> @lecture.getAlternativeLectureRooms.map{ lr=>
         <small><span class="label label-warning">@lr.getHouse:@lr.getNumber</span></small>

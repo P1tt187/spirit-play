@@ -2,7 +2,7 @@
 setContent = () ->
   $('#addSelectionBtn').removeClass('btn-success').addClass('btn-primary').children().removeClass('glyphicon-star').addClass('glyphicon-star-empty')
 
-  $('.lecture').addClass('hidden')
+  $('.alternative, .lecture').addClass('hidden')
   $('.' + $('#course-select').val()).removeClass('hidden')
   if $('#week-select').val() != 'WEEKLY'
     if $('#week-select').val() == 'EVEN'
@@ -24,7 +24,7 @@ encloseArray = (item) ->
 $('#course-select').change( setContent )
 $('#week-select').change(setContent)
 
-$('li.lecture').click( () ->
+$('.lecture').click( () ->
   if typeof localStorage != "undefined"
     personalSchedule = encloseArray(JSON.parse(localStorage.getItem("personalSchedule") || "[]"))
     personalSchedule.push( $(this).data('uuid') )    
