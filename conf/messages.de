@@ -36,3 +36,4 @@ SCHEDULE.DAY=Tag
 SCHEDULE.ROOM=Raum
 SCHEDULE.LECTURE=Fach
 SCHEDULE.ADDTOPERSONAL=Auswahl zum Persönlichen Plan hinzufügen
+SCHEDULE.EXPORTICAL=Als Kalender exportieren

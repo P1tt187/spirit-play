@@ -3,26 +3,27 @@
 # ~~~~
 
 # An example controller showing a sample home page
-GET        /                                                @controllers.NewsPageController.index
-GET        /newsstream/:number/:minNumber/:searchTag        @controllers.NewsPageController.newsStream(number:Long, minNumber:Long, searchTag:String)
-GET        /newsEntry/:number                               @controllers.NewsPageController.newsEntry(number:Long)
-GET        /newsTag/:tag                                    @controllers.NewsPageController.newsTag(tag)
-GET        /feed                                            @controllers.NewsPageController.feed
-GET        /schedule                                        @controllers.ScheduleController.index()
-GET        /blocks                                          @controllers.ScheduleController.blocks()
-GET        /block/:id                                       @controllers.ScheduleController.block(id)
-GET        /personalSchedule                                @controllers.ScheduleController.personalschedule()
+GET         /                                                @controllers.NewsPageController.index
+GET         /newsstream/:number/:minNumber/:searchTag        @controllers.NewsPageController.newsStream(number:Long, minNumber:Long, searchTag:String)
+GET         /newsEntry/:number                               @controllers.NewsPageController.newsEntry(number:Long)
+GET         /newsTag/:tag                                    @controllers.NewsPageController.newsTag(tag)
+GET         /feed                                            @controllers.NewsPageController.feed
+GET         /schedule                                        @controllers.ScheduleController.index()
+GET         /blocks                                          @controllers.ScheduleController.blocks()
+GET         /block/:id                                       @controllers.ScheduleController.block(id)
+GET         /personalSchedule                                @controllers.ScheduleController.personalschedule()
+POST        /icalexport                                      @controllers.ScheduleController.icalExport()
 
-GET        /shortcuts                                       @controllers.ShortCutController.index()
+GET         /shortcuts                                       @controllers.ShortCutController.index()
 
-GET        /groups                                          @controllers.GroupController.index()
+GET         /groups                                          @controllers.GroupController.index()
 
 # An example controller showing how to use dependency injection
-GET        /count                                           @controllers.CountController.count
+GET         /count                                           @controllers.CountController.count
 # An example controller showing how to write asynchronous code
-GET        /message                                         @controllers.AsyncController.message
+GET         /message                                         @controllers.AsyncController.message
 
 # Map static resources from the /public folder to the /assets URL path
-GET        /assets/*file                                    @controllers.Assets.versioned(path="/public", file: Asset)
+GET         /assets/*file                                    @controllers.Assets.versioned(path="/public", file: Asset)
 #WebJars
-GET        /webjars/*file                                   @controllers.WebJarAssets.at(file)
+GET         /webjars/*file                                   @controllers.WebJarAssets.at(file)

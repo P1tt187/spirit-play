@@ -2,10 +2,11 @@ package controllers
 
 import javax.inject._
 
-import model.database.ScheduleDateDA
+import helpers.ICalBuilder
+import model.database.{LectureDA, ScheduleDateDA}
 import model.schedule.data.MSchedule
 import model.schedule.meta.ScheduleDate
-import org.joda.time.DateTime
+import org.joda.time.{DateTime, DateTimeConstants, Months}
 import play.api.mvc._
 import views.html.schedule._
 
@@ -73,6 +74,26 @@ class ScheduleController @Inject()(mSchedule: MSchedule) extends AbstractControl
         }
         Ok(personalSchedule(m("SCHEDULE.PERSONALSCHEDULE"), scheduleDate.date, getSemesterMode(), timeRanges, weekDays, lectures))
     }
+  }
+
+  def icalExport = Action{
+    implicit request =>
+      val input = request.body.asFormUrlEncoded.get
+      val icalInput= input("icalInput").head.split(";").toSet
+
+      val now = DateTime.now()
+      val nowMonth = now.getMonthOfYear
+
+      val startTime = if(nowMonth < DateTimeConstants.APRIL){
+        now.minusYears(1).monthOfYear().setCopy(DateTimeConstants.OCTOBER).dayOfMonth().withMaximumValue()
+      } else {
+        now.monthOfYear().setCopy(DateTimeConstants.APRIL).dayOfMonth().withMinimumValue()
+      }
+
+       val lectures = LectureDA.findUids(icalInput.toList)
+      val result = ICalBuilder(startTime,lectures)
+
+      Ok(result).as("text/calendar;Content-Disposition: attachment; filename=\"plan.ics\"")
   }
 
 }

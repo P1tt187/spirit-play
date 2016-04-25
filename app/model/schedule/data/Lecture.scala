@@ -1,5 +1,6 @@
 package model.schedule.data
 
+import org.elasticsearch.search.aggregations.support.numeric.ValueFormatter.DateTime
 import play.api.libs.json.Json
 
 

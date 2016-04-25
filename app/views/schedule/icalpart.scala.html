@@ -1,0 +1,8 @@
+@()(implicit webJarAssets: WebJarAssets, request: Request[_], m: MessagesApi)
+<form class="form-group" method="POST" action="@routes.ScheduleController.icalExport()">
+  <div class="hidden">
+    <input class="form-control" type="text" id="icalInput" name="icalInput">
+  </div>
+  <label class="control-label" for="icalsubmit"> @m("SCHEDULE.EXPORTICAL")  </label>
+  <button type="submit" id="icalsubmit" class="btn btn-sm btn-default"> <span class="glyphicon glyphicon-download"></span></button>
+</form>

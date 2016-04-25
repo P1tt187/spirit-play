@@ -26,6 +26,7 @@ libraryDependencies ++= Seq(
   "jp.co.bizreach" %% "elastic-scala-httpclient" % "1.0.5" withSources(),
   "org.jsoup" % "jsoup" % "1.8.3" % "compile->default" withSources,
   "org.twitter4j" % "twitter4j-core" % "4.0.4",
+  "org.mnode.ical4j" % "ical4j" % "2.0-beta1",
   "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.0-RC1" % Test,
   "de.leanovate.play-mockws" %% "play-mockws" % "2.5.0" % Test
 )

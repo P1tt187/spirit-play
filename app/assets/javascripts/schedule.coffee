@@ -4,6 +4,12 @@ setContent = () ->
 
   $('.alternative, .lecture').addClass('hidden')
   $('.' + $('#course-select').val()).removeClass('hidden')
+  lectureUUID = ''
+  $('.' + $('#course-select').val()).each( (index,value) ->
+    lectureUUID+= $(value).data('uuid')  + ';'
+  )
+
+  $('#icalInput').val(lectureUUID)
   if $('#week-select').val() != 'WEEKLY'
     if $('#week-select').val() == 'EVEN'
       $('.UNEVEN').addClass('hidden')

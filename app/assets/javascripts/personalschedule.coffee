@@ -22,6 +22,7 @@ encloseArray = (item) ->
 
 $(window).load( () ->
   setContent()
+  setIcalField()
   $('[data-dayindex="' + new Date().getDay() + '"]').tab('show');
 )
 
@@ -35,6 +36,7 @@ $('.lecture').click( () ->
     )
     localStorage.setItem("personalSchedule",JSON.stringify(personalSchedule))
     $(this).addClass('hidden')
+    setIcalField()
 )
 
 $('#deletePrivateData').click( () ->
@@ -42,3 +44,12 @@ $('#deletePrivateData').click( () ->
     localStorage.clear()
   window.location = window.location
 )
+
+setIcalField = () ->
+  if typeof localStorage != "undefined"
+    content = ""
+    personalSchedule = encloseArray(JSON.parse(localStorage.getItem("personalSchedule") || "[]"))
+    personalSchedule.forEach( (value,index) ->
+      content+=value + ';'
+    )
+    $('#icalInput').val(content)

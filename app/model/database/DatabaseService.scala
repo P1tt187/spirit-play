@@ -152,6 +152,14 @@ object SemesterModeDA extends DatabaseService[SemesterMode]{
 
 object LectureDA extends DatabaseService[Lecture] {
 
+  def findUids(uids:List[String]):List[Lecture] = {
+    list[Lecture]{
+      searcher =>
+        searcher.setQuery(inQuery("uuid",uids.toArray:_*))
+        searcher.setSize(10000)
+    }
+  }
+
 }
 
 object ScheduleDA extends DatabaseService[Schedule] {
