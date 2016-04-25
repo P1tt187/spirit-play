@@ -12,7 +12,7 @@ GET         /schedule                                        @controllers.Schedu
 GET         /blocks                                          @controllers.ScheduleController.blocks()
 GET         /block/:id                                       @controllers.ScheduleController.block(id)
 GET         /personalSchedule                                @controllers.ScheduleController.personalschedule()
-POST        /icalexport                                      @controllers.ScheduleController.icalExport()
+POST        /icalexport.ics                                  @controllers.ScheduleController.icalExport()
 
 GET         /shortcuts                                       @controllers.ShortCutController.index()
 
