@@ -37,9 +37,15 @@ case class IcalEvent(startTime: DateTime, lecture: Lecture) {
     } else {
       ""
     }
+    val groupSuffix = if(lecture.groupIndex.nonEmpty) {
+      "Gruppe: " + lecture.groupIndex
+    } else  {
+      ""
+    }
+
     event.getProperties.add(new RRule("FREQ=WEEKLY" + freqSuffix))
     event.getProperties.add(new Uid(lecture.uuid))
-    event.getProperties.add(new Description(lecture.longTitle + " \n" + lecture.docents.mkString(" ")))
+    event.getProperties.add(new Description(lecture.longTitle + " \n" + lecture.docents.mkString(" ") + "\n" + groupSuffix))
     event
   }
 
