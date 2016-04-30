@@ -13,7 +13,7 @@ import org.joda.time.DateTime
   * @author fabian 
   *         on 25.04.16.
   */
-case class IcalEvent(startTime: DateTime, endTime:DateTime, lecture: Lecture) {
+case class IcalEvent(startTime: DateTime, endTime: DateTime, lecture: Lecture) {
 
   def mkEvent = {
     val weekDay = WeekdayMapper.weekdayMap(EWeekdays.findConstantByName(lecture.time.weekday).get())
@@ -38,16 +38,35 @@ case class IcalEvent(startTime: DateTime, endTime:DateTime, lecture: Lecture) {
     } else {
       ""
     }
-    val groupSuffix = if(lecture.groupIndex.nonEmpty) {
-      "Gruppe: " + lecture.groupIndex
-    } else  {
-      ""
-    }
 
     event.getProperties.add(new RRule("FREQ=WEEKLY;UNTIL=" + new Date(endTime.getMillis) + freqSuffix))
     event.getProperties.add(new Uid(lecture.uuid))
-    event.getProperties.add(new Description(lecture.longTitle + " \n" + lecture.docents.mkString(" ") + "\n" + groupSuffix))
+    event.getProperties.add(new Description(mkDescription(lecture)))
     event
+  }
+
+  private def mkDescription(lecture: Lecture) = {
+    val groupSuffix = if (lecture.groupIndex.nonEmpty) {
+      "Gruppe: " + lecture.groupIndex
+    } else {
+      ""
+
+    }
+    val sb = new StringBuilder
+    sb append lecture.longTitle append " \n"
+    sb append lecture.course.mkString(" ") append "\n"
+    sb append groupSuffix append "\n"
+    sb append lecture.docents.mkString(" ") append "\n\n"
+    if (lecture.alternatives.nonEmpty) {
+      sb append "Alternativen: " append "\n"
+      lecture.alternatives.foreach {
+        alt =>
+          sb append "Stunde: " append alt.hour append "\n"
+          sb append "Wochentag:" append EWeekdays.valueOf(alt.weekday).getGermanName append "\n"
+          sb append "Raum: " append alt.room append "\n\n"
+      }
+    }
+    sb.toString()
   }
 
 }
