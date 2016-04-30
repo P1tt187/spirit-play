@@ -2,7 +2,7 @@ import com.typesafe.sbt.packager.archetypes.ServerLoader
 
 name := """spirit-play"""
 
-version := "2.0.0"
+version := "2.0." + sys.env.get("BUILD_NUMBER").getOrElse("x")
 
 lazy val scheduleParser = (project in file("subprojects/spirit2-schedule-parser"))
 
