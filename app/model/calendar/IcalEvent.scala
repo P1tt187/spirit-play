@@ -2,6 +2,7 @@ package model.calendar
 
 import model.schedule.data.Lecture
 import net.fortuna.ical4j.model
+import net.fortuna.ical4j.model.Date
 import net.fortuna.ical4j.model.component.VEvent
 import net.fortuna.ical4j.model.property.{Description, Location, RRule, Uid}
 import org.fhs.spirit.scheduleparser.enumerations.{EDuration, EWeekdays}
@@ -12,7 +13,7 @@ import org.joda.time.DateTime
   * @author fabian 
   *         on 25.04.16.
   */
-case class IcalEvent(startTime: DateTime, lecture: Lecture) {
+case class IcalEvent(startTime: DateTime, endTime:DateTime, lecture: Lecture) {
 
   def mkEvent = {
     val weekDay = WeekdayMapper.weekdayMap(EWeekdays.findConstantByName(lecture.time.weekday).get())
@@ -43,7 +44,7 @@ case class IcalEvent(startTime: DateTime, lecture: Lecture) {
       ""
     }
 
-    event.getProperties.add(new RRule("FREQ=WEEKLY" + freqSuffix))
+    event.getProperties.add(new RRule("FREQ=WEEKLY;UNTIL=" + new Date(endTime.getMillis) + freqSuffix))
     event.getProperties.add(new Uid(lecture.uuid))
     event.getProperties.add(new Description(lecture.longTitle + " \n" + lecture.docents.mkString(" ") + "\n" + groupSuffix))
     event

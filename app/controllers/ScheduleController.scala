@@ -85,13 +85,21 @@ class ScheduleController @Inject()(mSchedule: MSchedule) extends AbstractControl
       val nowMonth = now.getMonthOfYear
 
       val startTime = if(nowMonth < DateTimeConstants.APRIL){
-        now.minusYears(1).monthOfYear().setCopy(DateTimeConstants.OCTOBER).dayOfMonth().withMaximumValue()
+        now.minusYears(1).monthOfYear().setCopy(DateTimeConstants.OCTOBER).dayOfMonth().withMinimumValue()
+      } else if(nowMonth >= DateTimeConstants.OCTOBER && nowMonth<= DateTimeConstants.DECEMBER) {
+        now.monthOfYear().setCopy(DateTimeConstants.OCTOBER).dayOfMonth().withMinimumValue()
       } else {
         now.monthOfYear().setCopy(DateTimeConstants.APRIL).dayOfMonth().withMinimumValue()
       }
 
+      val endTime = if(startTime.getMonthOfYear == DateTimeConstants.OCTOBER){
+        startTime.year().addToCopy(1).monthOfYear().setCopy(DateTimeConstants.MARCH).dayOfMonth().withMinimumValue()
+      } else {
+        startTime.monthOfYear().setCopy(DateTimeConstants.SEPTEMBER).dayOfMonth().withMinimumValue()
+      }
+
        val lectures = LectureDA.findUids(icalInput.toList)
-      val result = ICalBuilder(startTime,lectures)
+      val result = ICalBuilder(startTime,endTime,lectures)
 
       Ok(result).as("text/calendar;Content-Disposition: attachment; filename=\"plan.ics\"")
   }

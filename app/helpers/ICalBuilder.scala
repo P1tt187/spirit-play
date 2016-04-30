@@ -12,7 +12,7 @@ import org.joda.time.DateTime
   *         on 25.04.16.
   */
 object ICalBuilder {
-  def apply(startTime:DateTime, lectures:List[Lecture]) = {
+  def apply(startTime:DateTime, endTime: DateTime, lectures:List[Lecture]) = {
 
     val calendar = new Calendar()
     val props = calendar.getProperties
@@ -22,7 +22,7 @@ object ICalBuilder {
 
     lectures.foreach {
       l=>
-        calendar.getComponents().add(IcalEvent(startTime,l).mkEvent)
+        calendar.getComponents().add(IcalEvent(startTime, endTime,l).mkEvent)
     }
 
     /** End of Magic */
