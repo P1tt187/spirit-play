@@ -2,7 +2,7 @@ import com.typesafe.sbt.packager.archetypes.ServerLoader
 
 name := """spirit-play"""
 
-version := "2.0." + sys.env.get("BUILD_NUMBER").getOrElse("x")
+version := "2.0." + sys.env.get("BUILD_NUMBER").getOrElse("00")
 
 lazy val scheduleParser = (project in file("subprojects/spirit2-schedule-parser"))
 
@@ -56,3 +56,13 @@ rpmUrl := Some("https://github.com/P1tt187/spirit-play")
 serverLoading in Rpm := ServerLoader.SystemV
 
 rpmLicense := Some("None")
+
+defaultLinuxInstallLocation:= "/opt"
+
+rpmPrefix := Some(defaultLinuxInstallLocation.toString)
+
+linuxPackageSymlinks := Seq.empty
+
+defaultLinuxLogsLocation := defaultLinuxInstallLocation + "/" + name
+
+//rpmBrpJavaRepackJars := false
