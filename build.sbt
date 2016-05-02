@@ -1,4 +1,7 @@
 import com.typesafe.sbt.packager.archetypes.ServerLoader
+import sbt.Keys._
+import sbt._
+
 
 name := """spirit-play"""
 
@@ -6,7 +9,7 @@ version := "2.0." + sys.env.get("BUILD_NUMBER").getOrElse("00")
 
 lazy val scheduleParser = (project in file("subprojects/spirit2-schedule-parser"))
 
-lazy val root = (project in file(".")).enablePlugins(PlayScala, LinuxPlugin, RpmPlugin).enablePlugins(SbtWeb).enablePlugins(BuildInfoPlugin).
+lazy val root = (project in file(".")).enablePlugins(PlayScala, LinuxPlugin, RpmPlugin,JDKPackagerPlugin).enablePlugins(SbtWeb).enablePlugins(BuildInfoPlugin).
   settings(
     buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
     buildInfoPackage := "meta"
@@ -43,7 +46,7 @@ CoffeeScriptKeys.sourceMap := true
 
 maintainer := "Fabian Markert <f.markert87@gmail.com>"
 
-packageSummary in Linux := "Spirit News"
+packageSummary := "Spirit News"
 
 packageDescription := "shows news and schedule"
 
@@ -57,12 +60,10 @@ serverLoading in Rpm := ServerLoader.SystemV
 
 rpmLicense := Some("None")
 
-defaultLinuxInstallLocation:= "/opt"
+rpmGroup := Some("spirit")
 
-rpmPrefix := Some(defaultLinuxInstallLocation.toString)
-
-linuxPackageSymlinks := Seq.empty
+//linuxPackageSymlinks := Seq.empty
 
 defaultLinuxLogsLocation := defaultLinuxInstallLocation + "/" + name
 
-//rpmBrpJavaRepackJars := false
+rpmBrpJavaRepackJars := false
