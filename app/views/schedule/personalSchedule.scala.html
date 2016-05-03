@@ -7,7 +7,7 @@
 @import org.joda.time.DateTimeZone
 @import org.fhs.spirit.scheduleparser.enumerations.EDuration
 @import views.html.schedule._
-@(title: String, scheduleDate: DateTime, semestermode: EMode, timeranges: List[TimeRange],weekDays:List[EWeekdays] ,lectures:List[Lecture])(implicit webJarAssets: WebJarAssets, request: Request[_], m: MessagesApi)
+@(title: String, scheduleDate: DateTime, semestermode: EMode, timeranges: List[TimeRange],weekDays:List[EWeekdays] ,lectures:List[Lecture])(implicit webJarAssets: WebJarAssets, request: Request[_], m: play.api.i18n.Messages)
 
 @df = @{
   DateTimeFormat.forPattern("dd.MM.yyyy").withZone(DateTimeZone.forID("Europe/Berlin"))

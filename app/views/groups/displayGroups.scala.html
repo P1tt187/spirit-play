@@ -1,6 +1,6 @@
 @import model.schedule.data.Group
 @import model.schedule.data.Student
-@(filterNames: List[(String, List[String])], groups: List[Group])(implicit webJarAssets: WebJarAssets, request: Request[_], m: MessagesApi)
+@(filterNames: List[(String, List[String])], groups: List[Group])(implicit webJarAssets: WebJarAssets, request: Request[_], m: play.api.i18n.Messages)
 
 
 @main(m("GROUPS.TITLE")) {

@@ -7,7 +7,7 @@ import model.database.{LectureDA, ScheduleDateDA}
 import model.schedule.data.MSchedule
 import model.schedule.meta.ScheduleDate
 import org.joda.time.{DateTime, DateTimeConstants, Months}
-import play.api.i18n.MessagesApi
+import play.api.i18n.{Messages, MessagesApi}
 import play.api.mvc._
 import views.html.schedule._
 
@@ -31,7 +31,7 @@ class ScheduleController @Inject()(mSchedule: MSchedule) extends AbstractControl
           case Some(sd) => sd
           case None => ScheduleDate(new DateTime())
         }
-        Ok(scheduleMain(m("SCHEDULE.PAGETITLE"), courseNames, scheduleDate.date, getSemesterMode(), timeRanges, weekDays, lectures))
+        Ok(scheduleMain(Messages("SCHEDULE.PAGETITLE"), courseNames, scheduleDate.date, getSemesterMode(), timeRanges, weekDays, lectures))
     }
     sessionCache.set("schedule", result)
     result
@@ -73,7 +73,7 @@ class ScheduleController @Inject()(mSchedule: MSchedule) extends AbstractControl
           case Some(sd) => sd
           case None => ScheduleDate(new DateTime())
         }
-        Ok(personalSchedule(m("SCHEDULE.PERSONALSCHEDULE"), scheduleDate.date, getSemesterMode(), timeRanges, weekDays, lectures))
+        Ok(personalSchedule(Messages("SCHEDULE.PERSONALSCHEDULE"), scheduleDate.date, getSemesterMode(), timeRanges, weekDays, lectures))
     }
   }
 

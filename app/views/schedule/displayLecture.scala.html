@@ -1,7 +1,7 @@
 @import model.schedule.data.Lecture
 @import org.fhs.spirit.scheduleparser.enumerations.EDuration
 @import org.fhs.spirit.scheduleparser.enumerations.ELectureKind
-@(lecture: Lecture)(implicit webJarAssets: WebJarAssets, request: Request[_], m: MessagesApi)
+@(lecture: Lecture)(implicit webJarAssets: WebJarAssets, request: Request[_], m: play.api.i18n.Messages)
 
   <div class="panel panel-info small smalltext ">
     <div class="panel-body @{

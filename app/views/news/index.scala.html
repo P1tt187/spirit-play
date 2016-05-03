@@ -2,7 +2,7 @@
 * This template takes a single argument, a String containing a
 * message to display.
 *@
-@(title: String, filterNames:List[(String, List[String])] , number:Long= -1, minNumber:Long = -1, searchTag:String = "-1")(implicit webJarAssets: WebJarAssets, request: Request[_], m: MessagesApi)
+@(title: String, filterNames:List[(String, List[String])] , number:Long= -1, minNumber:Long = -1, searchTag:String = "-1")(implicit webJarAssets: WebJarAssets, request: Request[_], m: play.api.i18n.Messages)
 @*
 * Call the the `main` template with two arguments. The first
 * argument is a `String` with the title of the page, the second

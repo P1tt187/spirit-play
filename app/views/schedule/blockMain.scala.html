@@ -1,4 +1,4 @@
-@(blockList:List[(Id, CourseName, Blockname)])(implicit webJarAssets: WebJarAssets, request: Request[_], m: MessagesApi)
+@(blockList:List[(Id, CourseName, Blockname)])(implicit webJarAssets: WebJarAssets, request: Request[_], m: play.api.i18n.Messages)
 
 @main(m("SCHEDULE.BLOCKS")) {
     <div class="page-header">

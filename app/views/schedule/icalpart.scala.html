@@ -1,4 +1,4 @@
-@()(implicit webJarAssets: WebJarAssets, request: Request[_], m: MessagesApi)
+@()(implicit webJarAssets: WebJarAssets, request: Request[_], m: play.api.i18n.Messages)
 <form class="form-group" method="POST" action="@routes.ScheduleController.icalExport()">
   <div class="hidden">
     <input class="form-control" type="text" id="icalInput" name="icalInput">

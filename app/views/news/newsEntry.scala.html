@@ -1,6 +1,6 @@
 @import model.news.NewsEntry
 @import org.joda.time.format.DateTimeFormat
-@(newsEntry: NewsEntry, newsHost:String)(implicit webJarAssets: WebJarAssets, request: Request[_], m: MessagesApi)
+@(newsEntry: NewsEntry, newsHost:String)(implicit webJarAssets: WebJarAssets, request: Request[_], m: play.api.i18n.Messages)
 
   @df = @{
     DateTimeFormat.forPattern("dd.MM.yyyy HH.mm")

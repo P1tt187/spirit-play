@@ -8,6 +8,7 @@ import model.news.NewsEntry
 import org.joda.time.format.ISODateTimeFormat
 import play.api.cache.Cached
 import play.api.http.ContentTypes
+import play.api.i18n.Messages
 import play.api.libs.Comet
 import play.api.libs.json.Json
 import play.api.mvc._
@@ -31,7 +32,7 @@ class NewsPageController @Inject()(materializer: akka.stream.Materializer) exten
   def index = sessionCache.cached("news") {
    Action {
       implicit request =>
-        Ok(views.html.news.index(m("NEWSPAGE.PAGETITLE"), courseNames))
+        Ok(views.html.news.index(Messages("NEWSPAGE.PAGETITLE"), courseNames))
     }
   }
 
@@ -70,12 +71,12 @@ class NewsPageController @Inject()(materializer: akka.stream.Materializer) exten
 
   def newsEntry(number: Long) = Action {
     implicit request =>
-      Ok(views.html.news.index(m("NEWSPAGE.PAGETITLE"), courseNames, number = number))
+      Ok(views.html.news.index(Messages("NEWSPAGE.PAGETITLE"), courseNames, number = number))
   }
 
   def newsTag(tag:String) = Action{
     implicit request=>
-      Ok(views.html.news.index(m("NEWSPAGE.TITLE"), courseNames, searchTag = tag))
+      Ok(views.html.news.index(Messages("NEWSPAGE.TITLE"), courseNames, searchTag = tag))
   }
 
   /**

@@ -2,7 +2,7 @@
 @import model.schedule.data.TimeRange
 @import org.fhs.spirit.scheduleparser.enumerations.EWeekdays
 @import views.html.schedule._
-@( timeranges: List[TimeRange],weekDays:List[EWeekdays] ,lectures:List[Lecture], customWeekdays:List[String] = List[String]())(implicit webJarAssets: WebJarAssets, request: Request[_], m: MessagesApi)
+@( timeranges: List[TimeRange],weekDays:List[EWeekdays] ,lectures:List[Lecture], customWeekdays:List[String] = List[String]())(implicit webJarAssets: WebJarAssets, request: Request[_], m: play.api.i18n.Messages)
 <div class="form-inline">
 <div class="form-group">
   Legende:

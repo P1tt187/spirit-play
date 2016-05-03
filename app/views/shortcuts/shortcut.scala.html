@@ -1,4 +1,4 @@
-@( shortcutMap:Map[String,String] )(implicit webJarAssets: WebJarAssets, request: Request[_], m: MessagesApi)
+@( shortcutMap:Map[String,String] )(implicit webJarAssets: WebJarAssets, request: Request[_], m: play.api.i18n.Messages)
 
 @main(m("SHORTCUT.TITLE")) {
   <table class="table table-bordered table-striped table-condensed">

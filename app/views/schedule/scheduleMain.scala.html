@@ -7,7 +7,7 @@
 @import model.schedule.data.Lecture
 @import views.html.schedule._
 @import org.fhs.spirit.scheduleparser.enumerations.EDuration
-@(title: String, filterNames: List[(String, List[String])], scheduleDate: DateTime, semestermode: EMode, timeranges: List[TimeRange],weekDays:List[EWeekdays] ,lectures:List[Lecture])(implicit webJarAssets: WebJarAssets, request: Request[_], m: MessagesApi)
+@(title: String, filterNames: List[(String, List[String])], scheduleDate: DateTime, semestermode: EMode, timeranges: List[TimeRange],weekDays:List[EWeekdays] ,lectures:List[Lecture])(implicit webJarAssets: WebJarAssets, request: Request[_], m: play.api.i18n.Messages)
 
 @df = @{
   DateTimeFormat.forPattern("dd.MM.yyyy").withZone(DateTimeZone.forID("Europe/Berlin"))
