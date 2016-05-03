@@ -7,6 +7,7 @@ import model.database.{LectureDA, ScheduleDateDA}
 import model.schedule.data.MSchedule
 import model.schedule.meta.ScheduleDate
 import org.joda.time.{DateTime, DateTimeConstants, Months}
+import play.api.i18n.MessagesApi
 import play.api.mvc._
 import views.html.schedule._
 
