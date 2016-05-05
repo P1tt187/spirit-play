@@ -2,7 +2,7 @@ NOTICE
 =========
 
  **This project was done with little knowledge on Scala and playframework! Some parts of the code should not be taken as best practice  examples or examples at all. Refactoring  is planned.
- I've done this just for fun. **
+ I've done this just for fun.**
  
  Thank you for reading!       
 
