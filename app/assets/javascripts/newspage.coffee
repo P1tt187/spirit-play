@@ -2,13 +2,20 @@ $('#course-select').change( () ->
   courseSelection = $(this).val()
   $('#news-group').empty()
   window.maxNewsNum=-1
-  $('#streamselector').attr('src','/newsstream/-1/-1/' + courseSelection)
+
+  $('#streamselector').attr('src',getnewsPrefix() + '/-1/-1/' + courseSelection)
 )
+
+getnewsPrefix = () ->
+  streamsrc = $('#streamselector').attr('src')
+  sourceStr = 'newsstream'
+  prefix = streamsrc.substr(0,streamsrc.indexOf(sourceStr) + sourceStr.length)
+  return prefix
 
 refreshStreamSelector = () ->
   if "-1" == $('#course-select').val()
     setTimeout( () ->
-      $('#streamselector').attr('src', '/newsstream/-1/'  + window.maxNewsNum +  '/-1')
+      $('#streamselector').attr('src', getnewsPrefix() + '/-1/'  + window.maxNewsNum +  '/-1')
       refreshStreamSelector()
     ,600000)
 
@@ -18,6 +25,6 @@ $('#streamselector').on('load', () ->
 
 $(window).load( () ->  
   $('#streamselector').delay(5000).queue( () ->
-    $(this).attr('src','/newsstream/-1/'  + window.maxNewsNum +  '/-1')
+    $(this).attr('src',getnewsPrefix() + '/-1/'  + window.maxNewsNum +  '/-1')
   )
 )
