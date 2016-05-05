@@ -24,6 +24,7 @@ object RSSParseActor {
 
 }
 
+/** this will parse an rss feed an create a news entry */
 class RSSParseActor @Inject()(configuration: Configuration, @Named("tweetActor") tweetActor: ActorRef) extends Actor with SpiritHelper {
 
   import RSSParseActor._
@@ -75,7 +76,7 @@ class RSSParseActor @Inject()(configuration: Configuration, @Named("tweetActor")
             }.get.id
             number += 1
             val updateString = "[Update]"
-            val newTitle = if(ue.title.contains(updateString)){
+            val newTitle = if (ue.title.contains(updateString)) {
               updateString + ue.title
             } else {
               ue.title
@@ -87,7 +88,7 @@ class RSSParseActor @Inject()(configuration: Configuration, @Named("tweetActor")
       }
       if (insertableEntrys.nonEmpty || updateableEntrys.nonEmpty) {
         val results = insertableEntrys ++ updateableEntrys
-        results.foreach( ne => tweetActor ! ne )
+        results.foreach(ne => tweetActor ! ne)
         val theEntryNumbers = results.map(_.number)
         //Logger.debug(theEntryNumbers.toString())
         val maxNumber = theEntryNumbers.max
@@ -125,7 +126,7 @@ class RSSParseActor @Inject()(configuration: Configuration, @Named("tweetActor")
   }
 
   def extractEntrys(feedXml: Elem) = {
-  def now = new DateTime()
+    def now = new DateTime()
 
     val courseNames = uncachedCourseNames
     (feedXml \\ "item").map {

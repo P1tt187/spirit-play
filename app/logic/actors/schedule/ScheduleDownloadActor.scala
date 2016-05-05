@@ -6,6 +6,9 @@ import javax.inject._
 import akka.actor.{Actor, ActorRef}
 import helpers.SpiritHelper
 import logic.actors.schedule.ScheduleDownloadActor.DownloadSchedule
+import logic.actors.schedule.ScheduleParseActor._
+import model.database.{LectureDA, ScheduleDA}
+import model.schedule.data.{Lecture, Schedule}
 import org.fhs.spirit.scheduleparser.enumerations.EScheduleKind
 import org.jsoup.Jsoup
 import play.api.libs.ws.WSClient
@@ -13,9 +16,7 @@ import play.api.libs.ws.WSClient
 import scala.collection.JavaConversions._
 import scala.concurrent.Await
 import scala.concurrent.duration._
-import logic.actors.schedule.ScheduleParseActor._
-import model.database.{LectureDA, ScheduleDA}
-import model.schedule.data.{Lecture, Schedule}
+
 /**
   * @author fabian 
   *         on 03.04.16.
@@ -27,6 +28,7 @@ object ScheduleDownloadActor {
 
 }
 
+/** this actor downloads and parse the public schedule */
 @Singleton
 class ScheduleDownloadActor @Inject()(ws: WSClient, @Named("parseActor") parseActor: ActorRef) extends Actor with SpiritHelper {
 
@@ -34,7 +36,7 @@ class ScheduleDownloadActor @Inject()(ws: WSClient, @Named("parseActor") parseAc
   override def receive: Receive = {
     case DownloadSchedule =>
       LectureDA.findAllExtended[Lecture]()
-        .foreach(lec => LectureDA.delete(lec.id) )
+        .foreach(lec => LectureDA.delete(lec.id))
       ScheduleDA.findAllExtended[Schedule]()
         .foreach(sch => ScheduleDA.delete(sch.id))
 
@@ -42,7 +44,7 @@ class ScheduleDownloadActor @Inject()(ws: WSClient, @Named("parseActor") parseAc
 
       val lectureResults = uncachedCourseNames.map {
         courseName =>
-          val outcome =  "s_" + courseName + ".html"
+          val outcome = "s_" + courseName + ".html"
           val httpResult = Await.result(ws.url(baseUrl + outcome).get(), 10 seconds)
           if (httpResult.status != 404) {
             Some((httpResult.bodyAsBytes.decodeString(StandardCharsets.ISO_8859_1.toString), courseName))
@@ -65,6 +67,6 @@ class ScheduleDownloadActor @Inject()(ws: WSClient, @Named("parseActor") parseAc
           }
       }.filter(_.nonEmpty).map(rs => (Jsoup.parse(rs.get._1).toString, rs.get._2)).map(rs => (EScheduleKind.BLOCK, rs))
 
-      parseActor ! ParseSchedule( lectureResults ++ blockResult )
+      parseActor ! ParseSchedule(lectureResults ++ blockResult)
   }
 }

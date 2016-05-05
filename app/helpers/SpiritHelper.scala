@@ -5,7 +5,6 @@ import javax.inject._
 import model.database.SemesterModeDA
 import model.schedule.meta.EMode._
 import model.schedule.meta.{EMode, SemesterMode}
-import play.api.cache._
 import play.api.{Configuration, Environment, Logger}
 
 import scala.collection.JavaConversions._
@@ -14,21 +13,26 @@ import scala.concurrent.duration._
 /**
   * @author fabian 
   *         on 03.04.16.
+  *         Helper class
   */
 trait SpiritHelper {
 
+  /** play config  */
   @Inject()
   protected var configuration: Configuration = null
 
+  /** play enviroment */
   @Inject()
   protected var env: Environment = null
 
+  /** which semester is it */
   @Inject()
   protected var semesterModeCache: SemesterModeCache = null
 
   @Inject()
-  protected var sessionCache : SessionCache = null
+  protected var sessionCache: SessionCache = null
 
+  /** current semester filtered by semestermode */
   protected def courseNames: List[(String, List[String])] = {
     semesterModeCache.getOrElse("courselist", 1 day) {
 
@@ -76,6 +80,10 @@ trait SpiritHelper {
 
   }
 
+  /** returns the semestermode
+    *
+    * @return
+    * can be summer or winter */
   def getSemesterMode() = {
     semesterModeCache.getOrElse("mode", 1 day) {
       val mode = SemesterModeDA.findAll[SemesterMode]().headOption match {
@@ -88,6 +96,7 @@ trait SpiritHelper {
     }
   }
 
+  /** returns all courses */
   def uncachedCourseNames = {
 
     val courseNames = configuration.getStringList("courses.courseNames").get

@@ -12,13 +12,17 @@ import org.joda.time.DateTime
 /**
   * @author fabian 
   *         on 25.04.16.
+  * @param startTime - when the lecture begins
+  * @param endTime   - when the lecture ends
+  * @param lecture   - the lecture
   */
 case class IcalEvent(startTime: DateTime, endTime: DateTime, lecture: Lecture) {
-
+  /** constructs a single event */
   def mkEvent = {
     val weekDay = WeekdayMapper.weekdayMap(EWeekdays.findConstantByName(lecture.time.weekday).get())
     val time = lecture.time
     val duration = EDuration.valueOf(lecture.duration)
+    /** if a lecture is not weekly the starttime and interval must be set */
     val startPoint = if (EDuration.WEEKLY == duration) {
       startTime
     } else if (EDuration.EVEN == duration && startTime.getWeekOfWeekyear % 2 != 0) {

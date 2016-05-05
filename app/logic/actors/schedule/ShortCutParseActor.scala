@@ -24,6 +24,7 @@ object ShortCutParseActor {
 
 }
 
+/** this actor will parse all shortcuts */
 @Singleton
 class ShortCutParseActor @Inject()(ws: WSClient) extends Actor with SpiritHelper {
 

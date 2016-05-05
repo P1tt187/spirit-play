@@ -1,6 +1,5 @@
 package logic.actors.rss
 
-import java.nio.charset.StandardCharsets
 import javax.inject._
 
 import akka.actor._
@@ -13,6 +12,7 @@ import scala.concurrent.duration._
 /**
   * @author fabian 
   * @since 27.03.16.
+  *        The newsreader downloads an rss feed send the content to an RssParser
   */
 
 @Singleton
@@ -31,7 +31,7 @@ class NewsReaderActor @Inject()(configuration: Configuration, ws: WSClient,
       if (response.status != 200) {
         Logger.error("error while news reading " + response.statusText)
       } else {
-       // val responseString = response.bodyAsBytes.decodeString(StandardCharsets.ISO_8859_1.toString)
+        // val responseString = response.bodyAsBytes.decodeString(StandardCharsets.ISO_8859_1.toString)
         val responseString = response.body
         rssParserActor ! RSSFeed(responseString)
       }

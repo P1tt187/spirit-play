@@ -23,7 +23,7 @@ object CheckScheduleDateActor {
   case object CheckScheduleDate
 
 }
-
+/** this actor check the last modifiacation of public schedule */
 @Singleton
 class CheckScheduleDateActor @Inject()(configuration: Configuration, @Named("scheduleDownloader") scheduleDownloadActor: ActorRef, @Named("groupParseActor") groupParseActor: ActorRef) extends Actor {
 

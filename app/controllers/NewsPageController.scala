@@ -6,20 +6,18 @@ import akka.stream.scaladsl.Source
 import model.database.NewsEntryDA
 import model.news.NewsEntry
 import org.joda.time.format.ISODateTimeFormat
-import play.api.cache.Cached
 import play.api.http.ContentTypes
 import play.api.i18n.Messages
 import play.api.libs.Comet
 import play.api.libs.json.Json
 import play.api.mvc._
-import play.twirl.api.Html
-import views.html.news._
 
 
 /**
   * This controller creates an `Action` to handle HTTP requests to the
   * application's home page.
   */
+@Singleton
 class NewsPageController @Inject()(materializer: akka.stream.Materializer) extends AbstractController {
 
 
@@ -30,12 +28,19 @@ class NewsPageController @Inject()(materializer: akka.stream.Materializer) exten
     * a path of `/`.
     */
   def index = sessionCache.cached("news") {
-   Action {
+    Action {
       implicit request =>
         Ok(views.html.news.index(Messages("NEWSPAGE.PAGETITLE"), courseNames))
     }
   }
 
+  /** this is the newsstream which will render all newsentrys and add it to the newspage
+    *
+    * @param number
+    *                  the number of the news
+    * @param minNumber loads only the news after the given news numbe
+    * @param searchTag render only news which contains the tag, e.g. bai1 will only display the news for bai1
+    */
   def newsStream(number: Long, minNumber: Long, searchTag: String) =
     Action {
       implicit req =>
@@ -69,13 +74,21 @@ class NewsPageController @Inject()(materializer: akka.stream.Materializer) exten
         Ok.chunked(newsSource via Comet.json("parent.newsStream")).as(ContentTypes.HTML)
     }
 
+  /** display a specific news entry
+    *
+    * @param number number of the news
+    */
   def newsEntry(number: Long) = Action {
     implicit request =>
       Ok(views.html.news.index(Messages("NEWSPAGE.PAGETITLE"), courseNames, number = number))
   }
 
-  def newsTag(tag:String) = Action{
-    implicit request=>
+  /** display only news with a specific tag
+    *
+    * @param tag the searchtag
+    */
+  def newsTag(tag: String) = Action {
+    implicit request =>
       Ok(views.html.news.index(Messages("NEWSPAGE.TITLE"), courseNames, searchTag = tag))
   }
 
@@ -140,6 +153,6 @@ class NewsPageController @Inject()(materializer: akka.stream.Materializer) exten
           </rss>
 
         Ok(rssFeed).as("application/rss+xml")
-  }
+    }
 
 }

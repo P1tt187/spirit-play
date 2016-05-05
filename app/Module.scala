@@ -7,7 +7,7 @@ import logic.actors.schedule._
 import logic.actors.spread.TweetActor
 import model.schedule.data.MSchedule
 import play.api.libs.concurrent.AkkaGuiceSupport
-import services.{AtomicCounter, Counter, NewsFeedReader, ScheduleParser}
+import services.{NewsFeedReader, ScheduleParser}
 
 /**
   * This class is a Guice module that tells Guice how to bind several
@@ -31,8 +31,7 @@ class Module extends AbstractModule with AkkaGuiceSupport {
     // Ask Guice to create an instance of NewsFeedReader when the
     // application starts.
     bind(classOf[NewsFeedReader]).asEagerSingleton()
-    // Set AtomicCounter as the implementation for Counter.
-    bind(classOf[Counter]).to(classOf[AtomicCounter])
+
 
     bindActor[CheckScheduleDateActor]("checkSchedule")
     bind(classOf[ScheduleParser]).asEagerSingleton()

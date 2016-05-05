@@ -15,7 +15,6 @@ import logic.actors.schedule.GroupParseActor.ParseGroups
 import model.database.GroupDA
 import model.schedule.data.{Group, Student}
 import org.jsoup.Jsoup
-import play.api.Logger
 import play.api.libs.ws.WSClient
 
 import scala.annotation.tailrec
@@ -29,6 +28,7 @@ object GroupParseActor {
 
 }
 
+/** this actor parse all groups */
 @Singleton
 class GroupParseActor @Inject()(ws: WSClient) extends Actor with SpiritHelper {
 
@@ -52,7 +52,7 @@ class GroupParseActor @Inject()(ws: WSClient) extends Actor with SpiritHelper {
           t =>
             (t \\ "td").map {
               td =>
-                td.toString.replaceAll("<td valign=\"middle\" rowspan=\"1\" colspan=\"1\" align=\"left\">", "").replaceAll("<td align=\"left\" valign=\"middle\"> ","").replaceAll("</td>", "").replaceAll("<br clear=\"none\"/>", ";").replaceAll("<br/>",";").split(";").map {
+                td.toString.replaceAll("<td valign=\"middle\" rowspan=\"1\" colspan=\"1\" align=\"left\">", "").replaceAll("<td align=\"left\" valign=\"middle\"> ", "").replaceAll("</td>", "").replaceAll("<br clear=\"none\"/>", ";").replaceAll("<br/>", ";").split(";").map {
                   studentString =>
                     val split = studentString.split(",")
                     (split.lift(1).getOrElse("").trim, split(0).trim)

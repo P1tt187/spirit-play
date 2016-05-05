@@ -10,10 +10,13 @@ import org.joda.time.DateTime
 /**
   * @author fabian 
   *         on 25.04.16.
+  *
+  *         Constructs an ical file
   */
 object ICalBuilder {
   def apply(startTime:DateTime, endTime: DateTime, lectures:List[Lecture]) = {
 
+    /** ical calendar */
     val calendar = new Calendar()
     val props = calendar.getProperties
     props.add(Version.VERSION_2_0)
