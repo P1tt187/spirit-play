@@ -10,14 +10,14 @@
     <div class="panel-heading">
       <h3 class="panel-title">
         <div class=" pull-left">
-          <a href="@routes.NewsPageController.newsEntry(newsEntry.number)">
+          <a href="@newsHost@routes.NewsPageController.newsEntry(newsEntry.number)">
           @newsEntry.title
           </a>
         </div>
         <div class=" pull-right">
           <div class="tagpanel pull-left text-left">
           @newsEntry.tags.map { tag =>
-            <a href="@routes.NewsPageController.newsTag(if("Alle".equals(tag) || "alte_semester".equals(tag)) {
+            <a href="@newsHost@routes.NewsPageController.newsTag(if("Alle".equals(tag) || "alte_semester".equals(tag)) {
               "-1"
             } else {
               tag
