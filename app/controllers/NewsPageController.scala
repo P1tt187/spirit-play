@@ -139,7 +139,7 @@ class NewsPageController @Inject()(materializer: akka.stream.Materializer) exten
                     {cdata(entry.newsMessage)}
                   </description>
                   <link>
-                    {hostUrl + request.host + routes.NewsPageController.newsEntry(entry.number)}
+                    {hostUrl + routes.NewsPageController.newsEntry(entry.number)}
                   </link>
                   <guid isPermaLink="false">
                     {entry.number}
