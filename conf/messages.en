@@ -37,3 +37,4 @@ SCHEDULE.ROOM=Room
 SCHEDULE.LECTURE=Lecture
 SCHEDULE.ADDTOPERSONAL=Add selection zu private schedule
 SCHEDULE.EXPORTICAL=export as iCal
+GENERAL.NOSCRIPT_WARNING=Please activate javascript for full functionality.

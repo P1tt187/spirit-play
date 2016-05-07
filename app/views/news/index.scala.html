@@ -2,7 +2,8 @@
 * This template takes a single argument, a String containing a
 * message to display.
 *@
-@(title: String, filterNames:List[(String, List[String])] , number:Long= -1, minNumber:Long = -1, searchTag:String = "-1")(implicit webJarAssets: WebJarAssets, request: Request[_], m: play.api.i18n.Messages)
+@import model.news.NewsEntry
+@(title: String, filterNames:List[(String, List[String])], newsEntrys:List[NewsEntry], newsHost:String , number:Long= -1, minNumber:Long = -1, searchTag:String = "-1")(implicit webJarAssets: WebJarAssets, request: Request[_], m: play.api.i18n.Messages)
 @*
 * Call the the `main` template with two arguments. The first
 * argument is a `String` with the title of the page, the second
@@ -32,10 +33,16 @@
   </div>
   <div class="panel-group fade in" id="news-group">
 
+    @newsEntrys.map{ entry=>
+      @newsEntry(entry, newsHost)
+    }
+
   </div>
 
   <script>
-    var maxNewsNum = -1;
+    var maxNewsNum = @minNumber;
+    var autloadEnabled = @{ number == -1 };
+
     $.ajaxSetup({
       cache: true
     });
@@ -52,5 +59,5 @@
   </script>
   <iframe class="hidden" id="streamselector" src="@routes.NewsPageController.newsStream(number,minNumber,searchTag)"></iframe>
   <script type="text/javascript" src="@routes.Assets.versioned("javascripts/newspage.js")"></script>
-  @*<script type="text/java" src="@routes.Assets.versioned("javascripts/shariff.min.js")"></script> *@
+  <script type="text/javascript" src="@routes.Assets.versioned("javascripts/shariff.complete.js")"></script>
 }

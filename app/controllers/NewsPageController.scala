@@ -20,6 +20,7 @@ import play.api.mvc._
 @Singleton
 class NewsPageController @Inject()(materializer: akka.stream.Materializer) extends AbstractController {
 
+  def newsHost = configuration.getString("spirit.host").getOrElse("http://localhost:9000")
 
   /**
     * Create an Action to render an HTML page with a welcome message.
@@ -30,7 +31,10 @@ class NewsPageController @Inject()(materializer: akka.stream.Materializer) exten
   def index = sessionCache.cached("news") {
     Action {
       implicit request =>
-        Ok(views.html.news.index(Messages("NEWSPAGE.PAGETITLE"), courseNames))
+        val newsHost = configuration.getString("spirit.host").getOrElse("http://localhost:9000")
+        val newsEntrys = NewsEntryDA.findAll[NewsEntry]().sortBy(-_.number)
+        val minNr = if(newsEntrys.isEmpty){-2} else { newsEntrys.map(_.number).max } + 1
+        Ok(views.html.news.index(Messages("NEWSPAGE.PAGETITLE"), courseNames, newsEntrys, newsHost, minNumber = minNr))
     }
   }
 
@@ -45,7 +49,6 @@ class NewsPageController @Inject()(materializer: akka.stream.Materializer) exten
     Action {
       implicit req =>
         implicit val mat = materializer
-        val newsHost = configuration.getString("spirit.host").getOrElse("http://localhost:9000")
         def filterNews = {
           var result = if (number != -1) {
             NewsEntryDA.findAll[NewsEntry]().filter(_.number == number)
@@ -80,7 +83,7 @@ class NewsPageController @Inject()(materializer: akka.stream.Materializer) exten
     */
   def newsEntry(number: Long) = Action {
     implicit request =>
-      Ok(views.html.news.index(Messages("NEWSPAGE.PAGETITLE"), courseNames, number = number))
+      Ok(views.html.news.index(Messages("NEWSPAGE.PAGETITLE"), courseNames, List[NewsEntry](), newsHost, number = number))
   }
 
   /** display only news with a specific tag
@@ -89,7 +92,7 @@ class NewsPageController @Inject()(materializer: akka.stream.Materializer) exten
     */
   def newsTag(tag: String) = Action {
     implicit request =>
-      Ok(views.html.news.index(Messages("NEWSPAGE.TITLE"), courseNames, searchTag = tag))
+      Ok(views.html.news.index(Messages("NEWSPAGE.TITLE"), courseNames, List[NewsEntry](), newsHost, searchTag = tag))
   }
 
   /**

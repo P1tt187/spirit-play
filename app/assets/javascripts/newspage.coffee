@@ -23,8 +23,9 @@ $('#streamselector').on('load', () ->
   refreshStreamSelector()
 )
 
-$(window).load( () ->  
-  $('#streamselector').delay(5000).queue( () ->
-    $(this).attr('src',getnewsPrefix() + '/-1/'  + window.maxNewsNum +  '/-1')
-  )
+$(window).load( () ->
+  if window.autloadEnabled == true
+    $('#streamselector').delay(5000).queue( () ->
+      $(this).attr('src',getnewsPrefix() + '/-1/'  + window.maxNewsNum +  '/-1')
+    )
 )
