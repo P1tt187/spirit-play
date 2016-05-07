@@ -41,7 +41,7 @@
 
   <script>
     var maxNewsNum = @minNumber;
-    var autloadEnabled = @{ number == -1 };
+    var autoloadEnabled = @{ number == -1 || searchTag == "-1"};
 
     $.ajaxSetup({
       cache: true

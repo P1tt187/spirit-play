@@ -24,7 +24,7 @@ $('#streamselector').on('load', () ->
 )
 
 $(window).load( () ->
-  if window.autloadEnabled == true
+  if window.autoloadEnabled == true
     $('#streamselector').delay(5000).queue( () ->
       $(this).attr('src',getnewsPrefix() + '/-1/'  + window.maxNewsNum +  '/-1')
     )
