@@ -79,11 +79,18 @@ class NewsPageController @Inject()(materializer: akka.stream.Materializer) exten
 
   /** display a specific news entry
     *
-    * @param number number of the news
+    * @param num number of the news
     */
-  def newsEntry(number: Long) = Action {
-    implicit request =>
-      Ok(views.html.news.index(Messages("NEWSPAGE.PAGETITLE"), courseNames, List[NewsEntry](), newsHost, number = number))
+  def newsEntry(num: Long) = sessionCache.cached("newsEntry" + num ) {
+    Action {
+      implicit request =>
+        val entrys = NewsEntryDA.findAll[NewsEntry]().filter(_.number == num)
+        val newsTitle = entrys.headOption match {
+          case Some(entry) => entry.title
+          case None => Messages("NEWSPAGE.PAGETITLE")
+        }
+        Ok(views.html.news.index(newsTitle, courseNames, entrys, newsHost, number = num))
+    }
   }
 
   /** display only news with a specific tag
