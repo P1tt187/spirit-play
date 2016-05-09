@@ -89,7 +89,11 @@ class NewsPageController @Inject()(materializer: akka.stream.Materializer) exten
           case Some(entry) => entry.title
           case None => Messages("NEWSPAGE.PAGETITLE")
         }
-        Ok(views.html.news.index(newsTitle, courseNames, entrys, newsHost, number = num))
+        if(entrys.nonEmpty) {
+          Ok(views.html.news.index(newsTitle, courseNames, entrys, newsHost, number = num))
+        } else {
+          NotFound(views.html.errorpages.pageNotFound())
+        }
     }
   }
 

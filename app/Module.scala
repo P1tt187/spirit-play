@@ -1,6 +1,7 @@
 import java.time.Clock
 
 import com.google.inject.AbstractModule
+import errorhandler.ErrorHandler
 import helpers.{SemesterModeCache, SessionCache}
 import logic.actors.rss.{DeleteNewsActor, NewsReaderActor, RSSParseActor}
 import logic.actors.schedule._
