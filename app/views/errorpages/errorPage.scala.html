@@ -1,0 +1,6 @@
+@(title:String, message:String)(implicit webJarAssets: WebJarAssets, request: Request[_], m: play.api.i18n.Messages)
+@main(title){
+  <h3 class="alert alert-danger">
+    @message
+  </h3>
+}
