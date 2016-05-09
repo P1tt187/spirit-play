@@ -57,7 +57,7 @@
         }
       };
   </script>
-  <iframe class="hidden" id="streamselector" src="@if(number== -1){ @routes.NewsPageController.newsStream(number,minNumber,searchTag)} else {#}"></iframe>
+  <iframe class="hidden" id="streamselector" @if(number== -1){ src="@routes.NewsPageController.newsStream(number,minNumber,searchTag)"} else {src="#"}></iframe>
   <script type="text/javascript" src="@routes.Assets.versioned("javascripts/newspage.js")"></script>
   <script type="text/javascript" src="@routes.Assets.versioned("javascripts/shariff.complete.js")"></script>
 }
