@@ -60,12 +60,18 @@ class ScheduleController @Inject()(mSchedule: MSchedule) extends AbstractControl
   def block(id: Id) = sessionCache.cached(id) {
     Action {
       implicit request =>
-        val block = mSchedule.getBlock(id)
-        val timeRanges = mSchedule.getTimeRages(block.scheduleData)
-        val weekDays = mSchedule.getWeekdays(block.scheduleData)
-        val customWeekdays = mSchedule.getCustomWeedays(block.scheduleData)
+        val blockOption = mSchedule.getBlock(id)
+        blockOption match {
+          case Some(block) =>
+            val timeRanges = mSchedule.getTimeRages(block.scheduleData)
+            val weekDays = mSchedule.getWeekdays(block.scheduleData)
+            val customWeekdays = mSchedule.getCustomWeedays(block.scheduleData)
 
-        Ok(blockView(block.title, timeRanges, weekDays, block.scheduleData, customWeekdays))
+            Ok(blockView(block.title, timeRanges, weekDays, block.scheduleData, customWeekdays))
+          case None =>
+            NotFound(views.html.errorpages.pageNotFound())
+        }
+
     }
   }
 

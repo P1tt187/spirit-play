@@ -133,6 +133,16 @@ sealed trait DatabaseService[A <: AnyRef] {
         searcher.setQuery(termQuery("_id", id))
     }.get._2
   }
+
+  def findByIdOption[T: ClassTag](id: String): Option[T] = {
+    find[T] {
+      searcher =>
+        searcher.setQuery(termQuery("_id", id))
+    } match {
+      case Some(x) => Some(x._2)
+      case None => None
+    }
+  }
 }
 
 object NewsEntryDA extends DatabaseService[NewsEntry] {

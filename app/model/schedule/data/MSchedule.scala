@@ -39,7 +39,7 @@ class MSchedule {
   }
 
   def getBlock(id: String) = {
-    ScheduleDA.findById[Schedule](id)
+    ScheduleDA.findByIdOption[Schedule](id)
   }
 
 }
