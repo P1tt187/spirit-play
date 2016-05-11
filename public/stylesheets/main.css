@@ -28,9 +28,7 @@
     text-overflow: ellipsis;
 }
 
-html,
 body {
-    height: 100%;
-    /* The html and body elements cannot have any padding or margin. */
-    padding-top: 2%;
+    min-height: 2000px;
+    padding-top: 70px;
 }
