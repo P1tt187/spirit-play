@@ -25,6 +25,7 @@ libraryDependencies ++= Seq(
   "org.webjars" % "jquery" % "2.2.2",
   "org.webjars" % "bootstrap" % "3.3.6",
   "org.webjars" % "bootstrap-select" % "1.9.4",
+  "org.webjars" % "clipboard.js" % "1.5.5",
   "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.7.2",
   "jp.co.bizreach" %% "elastic-scala-httpclient" % "1.0.5" withSources(),
   "org.jsoup" % "jsoup" % "1.8.3" % "compile->default" withSources,

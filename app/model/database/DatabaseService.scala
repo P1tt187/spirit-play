@@ -1,5 +1,6 @@
 package model.database
 
+import controllers.CourseName
 import jp.co.bizreach.elasticsearch4s._
 import model.news.{LatestNumber, NewsEntry}
 import model.schedule.data.{Group, Lecture, Schedule}
@@ -167,6 +168,14 @@ object LectureDA extends DatabaseService[Lecture] {
     list[Lecture] {
       searcher =>
         searcher.setQuery(inQuery("uuid", uids.toArray: _*))
+        searcher.setSize(10000)
+    }
+  }
+
+  def findForCourse(courseName: CourseName) :List[Lecture] = {
+    list[Lecture]{
+      searcher=>
+        searcher.setQuery(matchQuery("course", courseName))
         searcher.setSize(10000)
     }
   }

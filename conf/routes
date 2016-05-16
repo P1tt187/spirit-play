@@ -9,6 +9,7 @@ GET         /newsEntry/:number                               @controllers.NewsPa
 GET         /newsTag/:tag                                    @controllers.NewsPageController.newsTag(tag)
 GET         /feed                                            @controllers.NewsPageController.feed
 GET         /schedule                                        @controllers.ScheduleController.index()
+GET         /calendar/:coursename                            @controllers.ScheduleController.getCalendarForCourse(coursename)
 GET         /blocks                                          @controllers.ScheduleController.blocks()
 GET         /block/:id                                       @controllers.ScheduleController.block(id)
 GET         /personalSchedule                                @controllers.ScheduleController.personalschedule()

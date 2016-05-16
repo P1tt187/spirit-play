@@ -38,3 +38,5 @@ SCHEDULE.LECTURE=Lecture
 SCHEDULE.ADDTOPERSONAL=Add selection zu private schedule
 SCHEDULE.EXPORTICAL=export as iCal
 GENERAL.NOSCRIPT_WARNING=Please activate javascript for full functionality.
+SCHEDULE.CALENDARFEED=Calendarfeed
+GENERAL.COPY=Copy to clipboard

@@ -18,6 +18,13 @@ setContent = () ->
 
   if typeof localStorage != "undefined"
     localStorage.setItem('lastCourse',$('#course-select').val())
+  setCalendarContent()
+
+setCalendarContent = () ->
+  currentUrl = window.location.href
+  prefix = currentUrl.substr(0, currentUrl.lastIndexOf("/"))
+  url = prefix + "/calendar/" + $('#course-select').val()
+  $('#calendarLink').val(url)
 
 encloseArray = (item) ->
   if $.isArray(item)
@@ -25,7 +32,6 @@ encloseArray = (item) ->
   else
     Array
     [].push(item)
-
 
 $('#course-select').change( setContent )
 $('#week-select').change(setContent)
@@ -58,5 +64,18 @@ $(window).load( () ->
 
     $('#course-select').val(lastCourse)
   setContent()
-  $('[data-dayindex="' + new Date().getDay() + '"]').tab('show');
-)
+  $('[data-dayindex="' + new Date().getDay() + '"]').tab('show')
+  clipboard = new Clipboard('#clipboardBtn')
+  clipboard.on('success', (e) ->
+    console.info('Action:', e.action);
+    console.info('Text:', e.text);
+    console.info('Trigger:', e.trigger);
+
+    e.clearSelection();
+   )
+
+  clipboard.on('error', (e) ->
+    console.error('Action:', e.action);
+    console.error('Trigger:', e.trigger);
+   )
+  )

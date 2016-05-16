@@ -4,7 +4,7 @@ import javax.inject._
 
 import helpers.ICalBuilder
 import model.database.{LectureDA, ScheduleDateDA}
-import model.schedule.data.MSchedule
+import model.schedule.data.{Lecture, MSchedule}
 import model.schedule.meta.ScheduleDate
 import org.joda.time.{DateTime, DateTimeConstants}
 import play.api.i18n.Messages
@@ -22,6 +22,8 @@ class ScheduleController @Inject()(mSchedule: MSchedule) extends AbstractControl
   def index() = sessionCache.getOrElse("schedule") {
     val result = Action {
       implicit request =>
+        /** current host needed for calendar feed*/
+        val hostUrl = configuration.getString("spirit.host").getOrElse("http://localhost:9000")
 
         /** courses are needed for filtering the displayd lectures */
         val courses = courseNames.flatMap(_._2)
@@ -37,7 +39,7 @@ class ScheduleController @Inject()(mSchedule: MSchedule) extends AbstractControl
           case Some(sd) => sd
           case None => ScheduleDate(new DateTime())
         }
-        Ok(scheduleMain(Messages("SCHEDULE.PAGETITLE"), courseNames, scheduleDate.date, getSemesterMode(), timeRanges, weekDays, lectures))
+        Ok(scheduleMain(Messages("SCHEDULE.PAGETITLE"), courseNames, scheduleDate.date, getSemesterMode(), timeRanges, weekDays, lectures, hostUrl))
     }
     sessionCache.set("schedule", result)
     result
@@ -97,28 +99,41 @@ class ScheduleController @Inject()(mSchedule: MSchedule) extends AbstractControl
     implicit request =>
       val input = request.body.asFormUrlEncoded.get
       val icalInput = input("icalInput").head.split(";").toSet
-
-      val now = DateTime.now()
-      val nowMonth = now.getMonthOfYear
-
-      val startTime = if (nowMonth < DateTimeConstants.APRIL) {
-        now.minusYears(1).monthOfYear().setCopy(DateTimeConstants.OCTOBER).dayOfMonth().withMinimumValue()
-      } else if (nowMonth >= DateTimeConstants.OCTOBER && nowMonth <= DateTimeConstants.DECEMBER) {
-        now.monthOfYear().setCopy(DateTimeConstants.OCTOBER).dayOfMonth().withMinimumValue()
-      } else {
-        now.monthOfYear().setCopy(DateTimeConstants.APRIL).dayOfMonth().withMinimumValue()
-      }
-
-      val endTime = if (startTime.getMonthOfYear == DateTimeConstants.OCTOBER) {
-        startTime.year().addToCopy(1).monthOfYear().setCopy(DateTimeConstants.MARCH).dayOfMonth().withMinimumValue()
-      } else {
-        startTime.monthOfYear().setCopy(DateTimeConstants.SEPTEMBER).dayOfMonth().withMinimumValue()
-      }
-
       val lectures = LectureDA.findUids(icalInput.toList)
-      val result = ICalBuilder(startTime, endTime, lectures)
+
+      val result: String = createIcalString(lectures)
 
       Ok(result).as("text/calendar;Content-Disposition: attachment; filename=\"plan.ics\"")
   }
 
+  def getCalendarForCourse(courseName: String) = sessionCache.cached("calendar" + courseName) {
+    Action {
+      implicit request =>
+        val lectures = LectureDA.findForCourse(courseName)
+        val result = createIcalString(lectures)
+        Ok(result).as("text/calendar")
+    }
+  }
+
+  private def createIcalString(lectures: List[Lecture]): String = {
+    val now = DateTime.now()
+    val nowMonth = now.getMonthOfYear
+
+    val startTime = if (nowMonth < DateTimeConstants.APRIL) {
+      now.minusYears(1).monthOfYear().setCopy(DateTimeConstants.OCTOBER).dayOfMonth().withMinimumValue()
+    } else if (nowMonth >= DateTimeConstants.OCTOBER && nowMonth <= DateTimeConstants.DECEMBER) {
+      now.monthOfYear().setCopy(DateTimeConstants.OCTOBER).dayOfMonth().withMinimumValue()
+    } else {
+      now.monthOfYear().setCopy(DateTimeConstants.APRIL).dayOfMonth().withMinimumValue()
+    }
+
+    val endTime = if (startTime.getMonthOfYear == DateTimeConstants.OCTOBER) {
+      startTime.year().addToCopy(1).monthOfYear().setCopy(DateTimeConstants.MARCH).dayOfMonth().withMinimumValue()
+    } else {
+      startTime.monthOfYear().setCopy(DateTimeConstants.SEPTEMBER).dayOfMonth().withMinimumValue()
+    }
+
+    val result = ICalBuilder(startTime, endTime, lectures)
+    result
+  }
 }

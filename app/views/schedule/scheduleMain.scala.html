@@ -1,13 +1,10 @@
+@import model.schedule.data.{Lecture, TimeRange}
 @import model.schedule.meta.EMode
-@import org.joda.time.DateTime
-@import org.joda.time.DateTimeZone
+@import org.fhs.spirit.scheduleparser.enumerations.{EDuration, EWeekdays}
+@import org.joda.time.{DateTime, DateTimeZone}
 @import org.joda.time.format.DateTimeFormat
-@import model.schedule.data.TimeRange
-@import org.fhs.spirit.scheduleparser.enumerations.EWeekdays
-@import model.schedule.data.Lecture
 @import views.html.schedule._
-@import org.fhs.spirit.scheduleparser.enumerations.EDuration
-@(title: String, filterNames: List[(String, List[String])], scheduleDate: DateTime, semestermode: EMode, timeranges: List[TimeRange],weekDays:List[EWeekdays] ,lectures:List[Lecture])(implicit webJarAssets: WebJarAssets, request: Request[_], m: play.api.i18n.Messages)
+@(title: String, filterNames: List[(String, List[String])], scheduleDate: DateTime, semestermode: EMode, timeranges: List[TimeRange],weekDays:List[EWeekdays] ,lectures:List[Lecture], hostUrl:String)(implicit webJarAssets: WebJarAssets, request: Request[_], m: play.api.i18n.Messages)
 
 @df = @{
   DateTimeFormat.forPattern("dd.MM.yyyy").withZone(DateTimeZone.forID("Europe/Berlin"))
@@ -41,6 +38,16 @@
           </select>
         </div>
         @icalpart()
+        <div class="form-group">
+          <label for="calendarLink" class="control-label"> @m("SCHEDULE.CALENDARFEED") </label> <br />
+          <input type="text" id="calendarLink" class="form-control"
+          value="@hostUrl@routes.ScheduleController.getCalendarForCourse(filterNames.headOption.getOrElse(("", List[String]()))._2.headOption.getOrElse("bai2"))" >
+          </input>
+        </div>
+        <div class="form-group">
+          <label class="control-label" for="clipboardBtn"> @m("GENERAL.COPY") </label> <br />
+          <button data-clipboard-action="copy" data-clipboard-target='#calendarLink' id="clipboardBtn" class="btn btn-default" type="button"> <span class="glyphicon glyphicon-copy"></span> </button>
+        </div>
       </div>
       <div class="form-group">
         <button class="btn btn-primary" id="addSelectionBtn" title="@m("SCHEDULE.ADDTOPERSONAL")"> <span class="glyphicon glyphicon-star-empty"></span> </button>
@@ -76,6 +83,7 @@
 
     <script type="text/javascript" src="@routes.Assets.versioned("javascripts/helpers.js")"></script>
     <script type="text/javascript" src="@routes.Assets.versioned("javascripts/schedule.js")"></script>
+    <script type='text/javascript' src='@routes.WebJarAssets.at(webJarAssets.locate("clipboard.min.js"))'></script>
   </div>
 
 
