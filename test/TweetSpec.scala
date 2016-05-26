@@ -59,7 +59,7 @@ class TweetSpec extends PlaySpec with OneAppPerSuite {
       running(app) {
         val injector = app.injector
         val actor = injector.instanceOf(BindingKey(classOf[ActorRef]).qualifiedWith("tweetActor"))
-        actor ! Tweet("Test from Spirit2", "", "#commingsoon")
+        actor ! Tweet("Test from Spirit2", "", "#tweet")
       }
     }
 
