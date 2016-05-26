@@ -13,7 +13,7 @@
     }) { dayIdName =>
       <li role="presentation" @if(day == days.head) {
         class="active"
-      } data-dayindex="@{day.indexOf() +1 }"><a aria-controls="@dayIdName" role="tab" data-toggle="tab" href="#@dayIdName"> @m(day.name()).substring(0, 3) </a> </li>
+      } ><a data-dayindex="@{day.indexOf() +1 }" aria-controls="@dayIdName" role="tab" data-toggle="tab" href="#@dayIdName" data-target="#@dayIdName"> @m(day.name()).substring(0, 3) </a> </li>
     }
   }
   @customWeekdays.map { day =>
@@ -23,7 +23,7 @@
       "mobile-local-pane" + day
     }) { dayIdName =>
       <li role="presentation" @if(day == customWeekdays.head) {
-        class="active" } ><a aria-controls="@dayIdName" role="tab" data-toggle="tab" href="#@dayIdName"> @day.substring(0, 3) </a> </li>
+        class="active" } ><a aria-controls="@dayIdName" role="tab" data-toggle="tab" href="#@dayIdName" data-target="#@dayIdName"> @day.substring(0, 3) </a> </li>
     }
   }
 </ul>
@@ -36,7 +36,7 @@
     } else {
       "mobile-local-pane" + day.name()
     }) { dayIdName =>
-      <div class="tab-pane fade @if(day == days.head) { in  active}" id="@dayIdName">
+      <div role="tabpanel" class="tab-pane fade @if(day == days.head) { in  active}" id="@dayIdName">
         <div class="panel panel-info">
           <div class="panel-heading"><div class="text-center"> @m(day.name()) </div></div>
           <div class="panel-body">
@@ -70,7 +70,7 @@
     } else {
       "mobile-local-pane" + day
     }) { dayIdName =>
-      <div class="tab-pane fade @if(day == customWeekdays.head) { in  active}" id="@dayIdName">
+      <div role="tabpanel" class="tab-pane fade @if(day == customWeekdays.head) { in  active}" id="@dayIdName">
         <div class="panel panel-info">
           <div class="panel-heading"><div class="text-center"> @m(day) </div></div>
           <div class="panel-body">
