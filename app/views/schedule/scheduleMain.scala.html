@@ -38,7 +38,8 @@
           </select>
         </div>
         @icalpart()
-        <div class="form-group">
+        <div class="clearfix"></div>
+        <div class="form-group form-group-sm">
           <label for="calendarLink" class="control-label"> @m("SCHEDULE.CALENDARFEED") </label> <br />
           <input type="text" id="calendarLink" class="form-control"
           value="@hostUrl@routes.ScheduleController.getCalendarForCourse(filterNames.headOption.getOrElse(("", List[String]()))._2.headOption.getOrElse("bai2"))" >
