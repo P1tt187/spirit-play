@@ -41,11 +41,9 @@ class TweetActor @Inject()(ws: WSClient) extends Actor with SpiritHelper {
     val consumerSecret = configuration.getString("twitter.ConsumerSecret").getOrElse("")
     val token = configuration.getString("twitter.Token").getOrElse("")
     val tokenSecret = configuration.getString("twitter.TokenSecret").getOrElse("")
+    val debug = configuration.getBoolean("twitter.debug").getOrElse(false)
     val cb = new ConfigurationBuilder()
-    if (env.mode != Mode.Prod) {
-      cb.setDebugEnabled(true)
-    }
-
+    cb.setDebugEnabled(debug)
     cb.setOAuthConsumerKey(consumer)
     cb.setOAuthConsumerSecret(consumerSecret)
     cb.setOAuthAccessToken(token)
