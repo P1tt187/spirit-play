@@ -66,10 +66,11 @@ class TweetSpec extends PlaySpec with OneAppPerSuite {
     "testshorter" in {
       running(app) {
         WsTestClient.withClient { client =>
-          val longUrl = "http://fsi.fh-schmalkalden.de/spirit/"
-          val request = client.url("http://is.gd/api.php").withQueryString(("longurl",longUrl))
+          val longUrl = "https://fsi.fh-schmalkalden.de/spirit/"
+          val request = client.url("https://is.gd/create.php").withQueryString(("url", longUrl),("format","simple"))
           val response = Await.result(request.get(), 10 seconds)
           val shortUrl = response.body
+          Logger.debug(shortUrl)
           shortUrl.equalsIgnoreCase("Error: Please enter a valid URL to shorten") mustEqual false
         }
       }
