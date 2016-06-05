@@ -75,5 +75,20 @@ class TweetSpec extends PlaySpec with OneAppPerSuite {
         }
       }
     }
+
+
+    "connect to url shorter" in {
+      WsTestClient.withClient {
+        ws =>
+          val wsRequest = ws.url("https://is.gd")
+          val expectedResult = true
+
+          val result = Await.result(wsRequest.get(), 10 seconds)
+
+          val success: Boolean = result.status == 200
+          expectedResult mustBe success
+      }
+    }
+
   }
 }
