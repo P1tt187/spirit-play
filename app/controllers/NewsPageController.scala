@@ -168,7 +168,7 @@ class NewsPageController @Inject()(materializer: akka.stream.Materializer) exten
             </channel>
           </rss>
 
-        Ok(rssFeed).as("application/rss+xml")
+        Ok(Html("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + rssFeed.toString())).as("application/rss+xml;charset=UTF-8")
     }
 
 }
