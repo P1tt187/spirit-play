@@ -11,6 +11,7 @@ import play.api.i18n.Messages
 import play.api.libs.Comet
 import play.api.libs.json.Json
 import play.api.mvc._
+import play.twirl.api.Html
 
 
 /**
@@ -114,28 +115,29 @@ class NewsPageController @Inject()(materializer: akka.stream.Materializer) exten
   def feed =
     Action {
       implicit request =>
+        //implicit val myCustomCharset = Codec.javaSupported("iso-8859-1")
         val hostUrl = configuration.getString("spirit.host").getOrElse("http://localhost:9000")
         val news = NewsEntryDA.findAll[NewsEntry]().sortBy(-_.number)
 
         def cdata(data: String) = {
-          scala.xml.Unparsed("<![CDATA[%s]]>".format(data))
+          scala.xml.Unparsed("<![CDATA[%s]]>".format(Html(data)))
         }
 
         val rssFeed =
           <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
             <channel>
-              <title>Spirit @ FH-Schmalkalden - RSS Feed</title>
+              <title>{Html("Spirit @ FH-Schmalkalden - RSS Feed")}</title>
               <link>
                 {hostUrl}
               </link>
-              <description>RSS Feed für die aktuellen Meldungen am Fachbereich Informatik</description>
+              <description>{Html("RSS Feed für die aktuellen Meldungen am Fachbereich Informatik")}</description>
               <atom:link href={request.path} rel="self" type="application/rss+xml"/>
               <language>de-de</language>
               <image>
                 <url>
                   {hostUrl + routes.Assets.versioned("images/logo_spirit.png")}
                 </url>
-                <title>Spirit @ FH-Schmalkalden - RSS Feed</title>
+                <title>{Html("Spirit @ FH-Schmalkalden - RSS Feed")}</title>
                 <link>
                   {hostUrl}
                 </link>
