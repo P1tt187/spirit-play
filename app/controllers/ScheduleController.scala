@@ -103,7 +103,7 @@ class ScheduleController @Inject()(mSchedule: MSchedule) extends AbstractControl
 
       val result: String = createIcalString(lectures)
 
-      Ok(result).as("text/calendar;Content-Disposition: attachment; filename=\"plan.ics\"")
+      Ok(result).as("text/calendar;Content-Disposition: attachment; filename=\"plan.ics\";charset=UTF-8")
   }
 
   def getCalendarForCourse(courseName: String) = sessionCache.cached("calendar" + courseName) {
@@ -111,7 +111,7 @@ class ScheduleController @Inject()(mSchedule: MSchedule) extends AbstractControl
       implicit request =>
         val lectures = LectureDA.findForCourse(courseName)
         val result = createIcalString(lectures)
-        Ok(result).as("text/calendar")
+        Ok(result).as("text/calendar;charset=UTF-8")
     }
   }
 

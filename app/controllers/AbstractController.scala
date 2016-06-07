@@ -13,6 +13,9 @@ import play.api.mvc._
   *        and contains some vars and methods which are needed on every controller
   */
 abstract class AbstractController extends Controller with SpiritHelper with I18nSupport {
+
+  implicit val myCustomCharset = Codec.javaSupported("utf-8")
+
   /** needed for webjars, css and js librarys as java dependencys */
   @Inject() protected implicit var webJarAssets: WebJarAssets = null
   /** message api for translation */

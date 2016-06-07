@@ -115,7 +115,6 @@ class NewsPageController @Inject()(materializer: akka.stream.Materializer) exten
   def feed =
     Action {
       implicit request =>
-        //implicit val myCustomCharset = Codec.javaSupported("iso-8859-1")
         val hostUrl = configuration.getString("spirit.host").getOrElse("http://localhost:9000")
         val news = NewsEntryDA.findAll[NewsEntry]().sortBy(-_.number)
 
