@@ -107,7 +107,7 @@ class RSSParseActor @Inject()(configuration: Configuration, @Named("tweetActor")
     def extractTagsInternal(s: String) = {
       courseNames.map {
         cn =>
-          val p = Pattern.compile("(?i:.*" + cn + "[,]?\\s+.*)")
+          val p = Pattern.compile("(?i:.*" + cn + "[,:]?\\s+.*)")
           //val p = Pattern.compile("\\A|\\W" + cn + "[,]?\\W+")
           val matcher = p.matcher(s)
           if (matcher.matches()) {
@@ -117,7 +117,14 @@ class RSSParseActor @Inject()(configuration: Configuration, @Named("tweetActor")
           }
       }.filter(_.nonEmpty).map(_.get)
     }
-    val tags = extractTagsInternal(title) ++ extractTagsInternal(content)
+
+    def removeWhitespaces(s:String): String = {
+      s.toLowerCase().replaceAll("(^|\\s)(ba)\\s", "ba").replaceAll("(^|\\s)(ma)\\s", "ma")
+    }
+
+    val editetTitle = removeWhitespaces(title)
+
+    val tags = extractTagsInternal(title) ++ extractTagsInternal(content) ++ extractTagsInternal(editetTitle)
     if (tags.isEmpty) {
       List("Alle", "alte_semester")
     } else {
