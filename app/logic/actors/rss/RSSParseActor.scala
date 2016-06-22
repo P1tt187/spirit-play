@@ -128,7 +128,7 @@ class RSSParseActor @Inject()(configuration: Configuration, @Named("tweetActor")
     if (tags.isEmpty) {
       List("Alle", "alte_semester")
     } else {
-      tags
+      tags.distinct
     }
   }
 
