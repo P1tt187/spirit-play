@@ -32,10 +32,24 @@
     </div>
   </div>
   <div class="panel-group fade in" id="news-group">
-
-    @newsEntrys.map{ entry=>
-      @newsEntry(entry, newsHost)
-    }
+@if(!newsEntrys.isEmpty) {
+  @newsEntrys.map { entry =>
+    @newsEntry(entry, newsHost)
+  }
+} else {
+  <dic class="empty-container">
+    <div class="panel panel-info">
+      <div class="panel-heading">
+        <h3 class="panel-title">
+          @m("NEWSPAGE.EMPTY")
+        </h3>
+      </div>
+      <div class="panel-body">
+        @m("NEWSPAGE.EMPTY")
+      </div>
+    </div>
+  </dic>
+}
 
   </div>
 
@@ -48,6 +62,7 @@
     });
 
       var newsStream = function (data) {
+        $('.empty-container').html('');
         var newsGroup =  $('#news-group');
          newsGroup.html( data.html + newsGroup.html() );
         var url =$('#shariffcontainer').attr('src');
