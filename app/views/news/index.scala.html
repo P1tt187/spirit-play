@@ -32,7 +32,7 @@
     </div>
   </div>
   <div class="panel-group fade in" id="news-group">
-@if(!newsEntrys.isEmpty) {
+@if(newsEntrys.nonEmpty) {
   @newsEntrys.map { entry =>
     @newsEntry(entry, newsHost)
   }
