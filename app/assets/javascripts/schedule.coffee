@@ -62,6 +62,14 @@ $(window).load( () ->
     if `lastCourse == null`
       lastCourse = $('#course-select').first().val()
 
+    courseNotAllowed = true
+    $('#course-select').find('option').each((index,value) ->
+        if value == lastCourse
+          courseNotAllowed = false
+    )
+    if courseNotAllowed
+      lastCourse = $('#course-select').first().val()
+
     $('#course-select').val(lastCourse)
   setContent()
   $('[data-dayindex="' + new Date().getDay() + '"]').tab('show')

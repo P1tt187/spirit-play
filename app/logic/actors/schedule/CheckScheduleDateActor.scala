@@ -6,6 +6,8 @@ import akka.actor.{Actor, ActorRef}
 import logic.actors.schedule.GroupParseActor.ParseGroups
 import logic.actors.schedule.ScheduleDownloadActor._
 import model.schedule.meta.{EMode, ScheduleDate, SemesterMode}
+import model.spread.Tweet
+import model.spread.Tweet._
 import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
 import org.jsoup.Jsoup
@@ -23,9 +25,10 @@ object CheckScheduleDateActor {
   case object CheckScheduleDate
 
 }
+
 /** this actor check the last modifiacation of public schedule */
 @Singleton
-class CheckScheduleDateActor @Inject()(configuration: Configuration, @Named("scheduleDownloader") scheduleDownloadActor: ActorRef, @Named("groupParseActor") groupParseActor: ActorRef) extends Actor {
+class CheckScheduleDateActor @Inject()(configuration: Configuration, @Named("scheduleDownloader") scheduleDownloadActor: ActorRef, @Named("groupParseActor") groupParseActor: ActorRef, @Named("tweetActor") tweetActor: ActorRef) extends Actor {
 
   import CheckScheduleDateActor._
 
@@ -65,6 +68,9 @@ class CheckScheduleDateActor @Inject()(configuration: Configuration, @Named("sch
       findAllExtended[SemesterMode]().headOption match {
         case Some(sm) =>
           val id = sm.id
+          if (mode != EMode.valueOf(sm.doc.mode)) {
+            tweetActor ! Tweet("Neuer Stundenplan online", hostUrl, "")
+          }
           update(id, SemesterMode(mode.name()))
         case None =>
           insert(SemesterMode(mode.name()))
