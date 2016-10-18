@@ -18,9 +18,9 @@
   }
   @customWeekdays.map { day =>
     @defining(if(isOnline) {
-      "mobile-online-pane" + day
+      "mobile-online-pane" + day.replaceAll("\\s*","").replaceAll("[.]","")
     } else {
-      "mobile-local-pane" + day
+      "mobile-local-pane" + day.replaceAll("\\s*","").replaceAll("[.]","")
     }) { dayIdName =>
       <li role="presentation" @if(day == customWeekdays.head) {
         class="active" } ><a aria-controls="@dayIdName" role="tab" data-toggle="tab" href="#@dayIdName" data-target="#@dayIdName"> @day.substring(0, 3) </a> </li>
@@ -66,9 +66,9 @@
 
   @customWeekdays.map { day =>
     @defining(if(isOnline) {
-      "mobile-online-pane" + day
+      "mobile-online-pane" + day.replaceAll("\\s*","").replaceAll("[.]","")
     } else {
-      "mobile-local-pane" + day
+      "mobile-local-pane" + day.replaceAll("\\s*","").replaceAll("[.]","")
     }) { dayIdName =>
       <div role="tabpanel" class="tab-pane fade @if(day == customWeekdays.head) { in  active}" id="@dayIdName">
         <div class="panel panel-info">
