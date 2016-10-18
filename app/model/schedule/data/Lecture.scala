@@ -1,6 +1,7 @@
 package model.schedule.data
 
 import org.elasticsearch.search.aggregations.support.numeric.ValueFormatter.DateTime
+import org.joda.time
 import play.api.libs.json.Json
 
 
@@ -20,5 +21,5 @@ object Schedule {
   implicit val format = Json.format[Schedule]
 }
 
-case class Schedule(title: String, scheduleData: List[Lecture])
+case class Schedule(title: String, scheduleData: List[Lecture], scheduleDate:time.DateTime)
 

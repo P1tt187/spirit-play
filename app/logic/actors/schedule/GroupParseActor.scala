@@ -15,6 +15,7 @@ import logic.actors.schedule.GroupParseActor.ParseGroups
 import model.database.GroupDA
 import model.schedule.data.{Group, Student}
 import org.jsoup.Jsoup
+import play.api.Logger
 import play.api.libs.ws.WSClient
 
 import scala.annotation.tailrec
@@ -34,6 +35,8 @@ class GroupParseActor @Inject()(ws: WSClient) extends Actor with SpiritHelper {
 
   override def receive: Receive = {
     case ParseGroups =>
+      Logger.debug("begin parse groups")
+
       GroupDA.findAllExtended[Group]().foreach(g => GroupDA.delete(g.id))
       val baseUrl = configuration.underlying.getString("schedule.baseUrl")
       val outcome = configuration.underlying.getString("schedule.groups")
@@ -79,6 +82,7 @@ class GroupParseActor @Inject()(ws: WSClient) extends Actor with SpiritHelper {
               GroupDA.insert(group)
           }
         }
+        Logger.debug("finished parse groups")
       }
   }
 

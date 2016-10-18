@@ -33,7 +33,7 @@ class ScheduleParseActor @Inject()(@Named("shortcutParser") shortcutParser: Acto
         element =>
           val (kind, contentParts) = element
           val (content, course) = contentParts
-          ScheduleToJSONConverter(content, kind, course = course)
+            ScheduleToJSONConverter(content, kind, course = course)
       }.filter(_.nonEmpty).map(_.get).map(result => Json.parse(result).as[Schedule])
 
       val blocks = parseResults.filter(_.title.nonEmpty)
