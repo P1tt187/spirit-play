@@ -1,11 +1,14 @@
 import com.typesafe.sbt.packager.archetypes.ServerLoader
+import org.joda.time.DateTime
 import sbt.Keys._
 import sbt._
 
 
 name := """spirit-play"""
 
-version := "2.0." + sys.env.get("BUILD_NUMBER").getOrElse("00")
+val date = new DateTime()
+
+version := date.getYear.toString +"." + (date.getMonthOfYear).toString + "." + sys.env.get("BUILD_NUMBER").getOrElse("00")
 
 lazy val scheduleParser = (project in file("subprojects/spirit2-schedule-parser"))
 
@@ -33,7 +36,9 @@ libraryDependencies ++= Seq(
   "org.mnode.ical4j" % "ical4j" % "2.0-beta1",
   "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.0-RC1" % Test,
   "de.leanovate.play-mockws" %% "play-mockws" % "2.5.0" % Test
-)
+).map(_.exclude("io.netty","netty-transport-native-epoll"))
+
+excludeDependencies += "io.netty" % "netty-transport-native-epoll"
 
 resolvers += "twitter4j.org Repository" at "http://twitter4j.org/maven2"
 resolvers += "scalaz-bintray" at "http://dl.bintray.com/scalaz/releases"
