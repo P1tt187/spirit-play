@@ -9,7 +9,7 @@ version := "2.0." + sys.env.get("BUILD_NUMBER").getOrElse("00")
 
 lazy val scheduleParser = (project in file("subprojects/spirit2-schedule-parser"))
 
-lazy val root = (project in file(".")).enablePlugins(PlayScala, LinuxPlugin, RpmPlugin,JDKPackagerPlugin).enablePlugins(SbtWeb).enablePlugins(BuildInfoPlugin).
+lazy val root = (project in file(".")).enablePlugins(PlayScala, PlayAkkaHttpServer, LinuxPlugin, RpmPlugin,JDKPackagerPlugin).enablePlugins(SbtWeb).disablePlugins(PlayNettyServer).enablePlugins(BuildInfoPlugin).
   settings(
     buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
     buildInfoPackage := "meta"
