@@ -20,10 +20,11 @@ import views.html.schedule._
 class ScheduleController @Inject()(mSchedule: MSchedule) extends AbstractController {
 
   /** this will create a page containing all lectures of this semester */
-  def index() = sessionCache.getOrElse("schedule") {
+  def index(): Action[AnyContent] = sessionCache.getOrElse("schedule") {
     val result = Action {
       implicit request =>
-        /** current host needed for calendar feed*/
+
+        /** current host needed for calendar feed */
         val hostUrl = configuration.getString("spirit.host").getOrElse("http://localhost:9000")
 
         /** courses are needed for filtering the displayd lectures */
@@ -47,7 +48,7 @@ class ScheduleController @Inject()(mSchedule: MSchedule) extends AbstractControl
   }
 
   /** main part of block lectures */
-  def blocks() = sessionCache.cached("blocks") {
+  def blocks(): Action[AnyContent] = sessionCache.cached("blocks") {
     Action {
       implicit request =>
         val schedules = mSchedule.getBlocks()
@@ -60,7 +61,7 @@ class ScheduleController @Inject()(mSchedule: MSchedule) extends AbstractControl
   }
 
   /** display the block with dis id */
-  def block(id: Id) = sessionCache.cached(id) {
+  def block(id: Id): Action[AnyContent] = sessionCache.cached(id) {
     Action {
       implicit request =>
         val blockOption = mSchedule.getBlock(id)
@@ -79,7 +80,7 @@ class ScheduleController @Inject()(mSchedule: MSchedule) extends AbstractControl
   }
 
   /** personal schedule is most identical to the normal schedule but loads all the data from localstorage */
-  def personalschedule() = sessionCache.cached("personalSchedule") {
+  def personalschedule(): Action[AnyContent] = sessionCache.cached("personalSchedule") {
     Action {
       implicit request =>
         val courses = courseNames.flatMap(_._2)
@@ -107,7 +108,7 @@ class ScheduleController @Inject()(mSchedule: MSchedule) extends AbstractControl
       Ok(Html(result)).as("text/calendar;Content-Disposition: attachment; filename=\"plan.ics\";charset=UTF-8")
   }
 
-  def getCalendarForCourse(courseName: String) = sessionCache.cached("calendar" + courseName) {
+  def getCalendarForCourse(courseName: String): Action[AnyContent] = sessionCache.cached("calendar" + courseName) {
     Action {
       implicit request =>
         val lectures = LectureDA.findForCourse(courseName)

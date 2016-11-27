@@ -9,6 +9,7 @@ import helpers.SpiritHelper
 import logic.actors.schedule.ShortCutParseActor.ParseShortCuts
 import model.database.{LectureDA, ScheduleDA}
 import model.schedule.data.{Lecture, Schedule}
+import play.api.Logger
 import play.api.libs.ws.WSClient
 
 import scala.concurrent.Await
@@ -56,7 +57,7 @@ class ShortCutParseActor @Inject()(ws: WSClient) extends Actor with SpiritHelper
         val secondTableString = "<td width=50%>"
 
         val scanner = new Scanner(html)
-
+        Logger.debug("Start parsing shortcuts")
         while (scanner.hasNextLine) {
           val line = replaceHTMLExtraSymbols(scanner.nextLine())
 
@@ -96,6 +97,7 @@ class ShortCutParseActor @Inject()(ws: WSClient) extends Actor with SpiritHelper
             ScheduleDA.update(id, block.doc.copy(scheduleData = updatetBlocks))
         }
       }
+      Logger.debug("Finished parsing shortcuts")
       sessionCache.clear()
       semesterModeCache.clear()
   }
