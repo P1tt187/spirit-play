@@ -43,16 +43,15 @@ class ScheduleParseActor @Inject()(@Named("shortcutParser") shortcutParser: Acto
         ScheduleDA.insert(b)
       }
       /** find lectures for multiple courses */
-      lecturesList.map(_.uuid).distinct.map{
+     val lectures = lecturesList.map(_.uuid).distinct.map{
         uuid=>
           val lects = lecturesList.filter(_.uuid.equals(uuid))
           val course = lects.flatMap(_.course)
           val alternatives = lects.flatMap(_.alternatives).distinct
           lects.head.copy(course = course, alternatives = alternatives)
-      }.foreach{
-        l=>
-          LectureDA.insert(l)
       }
+
+      LectureDA.insert(lectures)
       Logger.debug("finished parsing")
 
 

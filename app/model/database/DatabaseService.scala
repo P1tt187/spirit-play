@@ -37,6 +37,17 @@ sealed trait DatabaseService[A <: AnyRef] {
     }
   }
 
+  def insert(values: Traversable[A]) {
+    apply {
+      implicit client =>
+        values.foreach {
+          v =>
+            client.insert(config, v)
+        }
+        client.refresh(config)
+    }
+  }
+
   def insertJson(json: String): Either[Map[String, Any], Map[String, Any]] = {
     apply {
       implicit client =>
@@ -173,9 +184,9 @@ object LectureDA extends DatabaseService[Lecture] {
     }
   }
 
-  def findForCourse(courseName: CourseName) :List[Lecture] = {
-    list[Lecture]{
-      searcher=>
+  def findForCourse(courseName: CourseName): List[Lecture] = {
+    list[Lecture] {
+      searcher =>
         searcher.setQuery(matchQuery("course", courseName))
         searcher.setSize(10000)
     }
