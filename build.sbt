@@ -64,7 +64,7 @@ rpmVendor := "http://www.fsi.fh-schmalkalden.de"
 
 rpmUrl := Some("https://github.com/P1tt187/spirit-play")
 
-serverLoading in Rpm := ServerLoader.SystemV
+serverLoading in Rpm := ServerLoader.Systemd
 
 rpmLicense := Some("None")
 
