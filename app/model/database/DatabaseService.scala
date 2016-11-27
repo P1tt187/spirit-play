@@ -167,7 +167,8 @@ object LectureDA extends DatabaseService[Lecture] {
   def findUids(uids: List[String]): List[Lecture] = {
     list[Lecture] {
       searcher =>
-        searcher.setQuery(inQuery("uuid", uids.toArray: _*))
+
+        searcher.setQuery(termsQuery("uuid", uids.toArray: _*))
         searcher.setSize(10000)
     }
   }
@@ -191,7 +192,7 @@ object GroupDA extends DatabaseService[Group] {
   def findByCourseNames(courseNames: List[String]): List[Group] = {
     list[Group] {
       searcher =>
-        searcher.setQuery(inQuery("className", courseNames.toArray: _*))
+        searcher.setQuery(termsQuery("className", courseNames.toArray: _*))
         searcher.setSize(10000)
     }
   }

@@ -30,7 +30,7 @@ libraryDependencies ++= Seq(
   "org.webjars" % "bootstrap-select" % "1.9.4",
   "org.webjars" % "clipboard.js" % "1.5.5",
   "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.8.4",
-  "jp.co.bizreach" %% "elastic-scala-httpclient" % "1.0.5" withSources(),
+  "jp.co.bizreach" %% "elastic-scala-httpclient" % "2.0.3" withSources(),
   "org.jsoup" % "jsoup" % "1.8.3" % "compile->default" withSources,
   "org.twitter4j" % "twitter4j-core" % "[4.0.4,)",
   "org.mnode.ical4j" % "ical4j" % "2.0-beta1",

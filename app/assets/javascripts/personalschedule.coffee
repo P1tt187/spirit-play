@@ -20,7 +20,7 @@ encloseArray = (item) ->
   else
     item
 
-$(window).load( () ->
+$(window).on('load', () ->
   setContent()
   setIcalField()
   $('[data-dayindex="' + new Date().getDay() + '"]').tab('show');

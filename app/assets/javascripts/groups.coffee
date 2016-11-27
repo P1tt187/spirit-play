@@ -6,7 +6,7 @@ courseSelector = () ->
     localStorage.setItem('lastCourse',$('#course-select').val())
 
 $('#course-select').change( courseSelector)
-$(window).load( () ->
+$(window).on('load', () ->
   if typeof localStorage != "undefined"
     lastCourse = localStorage.getItem("lastCourse")
     if `lastCourse == null`
