@@ -34,8 +34,8 @@ libraryDependencies ++= Seq(
   "org.jsoup" % "jsoup" % "1.8.3" % "compile->default" withSources,
   "org.twitter4j" % "twitter4j-core" % "[4.0.4,)",
   "org.mnode.ical4j" % "ical4j" % "2.0-beta1",
-  "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.0-RC1" % Test,
-  "de.leanovate.play-mockws" %% "play-mockws" % "2.5.0" % Test
+  "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.1" % Test,
+  "de.leanovate.play-mockws" %% "play-mockws" % "2.5.1" % Test
 ).map(_.exclude("io.netty","netty-transport-native-epoll"))
 
 excludeDependencies += "io.netty" % "netty-transport-native-epoll"
