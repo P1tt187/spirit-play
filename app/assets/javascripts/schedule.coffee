@@ -56,7 +56,7 @@ $('#addSelectionBtn').click( () ->
     $(this).removeClass("btn-primary").addClass("btn-success")
 )
 
-$(window).load( () ->
+$(window).on( 'load', () ->
   if typeof localStorage != "undefined"
     lastCourse = localStorage.getItem("lastCourse")
     if `lastCourse == null`
