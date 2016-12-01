@@ -59,14 +59,16 @@ $('#addSelectionBtn').click( () ->
 $(window).on( 'load', () ->
   if typeof localStorage != "undefined"
     lastCourse = localStorage.getItem("lastCourse")
+
     if `lastCourse == null`
       lastCourse = $('#course-select').first().val()
 
     courseNotAllowed = true
-    $('#course-select').find('option').each((index,value) ->
-        if value == lastCourse
+    $('#course-select').find('option').each((index, theOption) ->
+        if $(theOption).val() == lastCourse
           courseNotAllowed = false
     )
+
     if courseNotAllowed
       lastCourse = $('#course-select').first().val()
 
