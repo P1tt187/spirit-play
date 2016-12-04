@@ -77,3 +77,5 @@ defaultLinuxLogsLocation := defaultLinuxInstallLocation + "/" + name
 rpmBrpJavaRepackJars := false
 
 herokuJdkVersion in Compile := "1.8"
+
+herokuAppName in Compile := "spirit-play"
