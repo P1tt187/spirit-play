@@ -1,8 +1,5 @@
-import javax.xml.ws.WebServiceProvider
-
-import akka.actor.{ActorRef, ActorSystem, Props}
+import akka.actor.{ActorRef, ActorSystem}
 import controllers._
-import logic.actors.spread.TweetActor
 import model.news.NewsEntry
 import model.spread.Tweet
 import org.joda.time.DateTime
@@ -10,15 +7,13 @@ import org.scalatestplus.play.{OneAppPerSuite, PlaySpec}
 import play.api.cache.CacheApi
 import play.api.inject._
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.libs.ws.WSClient
-import play.api.libs.ws.ahc.AhcWSClient
 import play.api.test.Helpers._
 import play.api.test.WsTestClient
 import play.api.{Configuration, Logger, Mode}
 import util.FakeCache
-import scala.concurrent.duration._
 
 import scala.concurrent.Await
+import scala.concurrent.duration._
 
 /**
   * @author fabian 
@@ -39,7 +34,7 @@ class TweetSpec extends PlaySpec with OneAppPerSuite {
     "Convert news to tweet" in {
       val result = Tweet.newsToTweet(
         NewsEntry("foo", "bar", "foobar", new DateTime(), "", new DateTime(), List("foo", "bar"), 42))
-      val expected = Tweet("foo", "http://localhost:9000" + routes.NewsPageController.newsEntry(42).url, "#foo #bar")
+      val expected = Tweet("foo", app.configuration.getString("spirit.host").getOrElse("http://localhost:9000")  + routes.NewsPageController.newsEntry(42).url, "#foo #bar")
       result mustEqual expected
     }
 
