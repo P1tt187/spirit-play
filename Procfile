@@ -1,1 +1,1 @@
-web: target/universal/stage/bin/spirit-play
+web: target/universal/stage/bin/spirit-play -Dhttp.port=${PORT}
