@@ -75,3 +75,5 @@ rpmGroup := Some("spirit")
 defaultLinuxLogsLocation := defaultLinuxInstallLocation + "/" + name
 
 rpmBrpJavaRepackJars := false
+
+herokuJdkVersion in Compile := "1.8"
