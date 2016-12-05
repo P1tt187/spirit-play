@@ -21,7 +21,8 @@ sealed trait DatabaseService[A <: AnyRef] {
   val config: ESConfig = "spirit-play" / this.getClass.getSimpleName
 
   def apply[A](action: ESClient => A): A = {
-    ESClient.using("http://localhost:9200") {
+
+    ESClient.using(System.getProperty("ELASTICSEARCH_URL", "http://localhost:9200")) {
       client =>
         val result = action(client)
         result
