@@ -1,5 +1,7 @@
 package model.database
 
+import com.ning.http.client.Realm.{AuthScheme, RealmBuilder}
+import com.ning.http.client.{AsyncHttpClient, AsyncHttpClientConfig}
 import controllers.CourseName
 import jp.co.bizreach.elasticsearch4s._
 import model.news.{LatestNumber, NewsEntry}
@@ -22,7 +24,20 @@ sealed trait DatabaseService[A <: AnyRef] {
 
   def apply[A](action: ESClient => A): A = {
 
-    ESClient.using(System.getenv().getOrDefault("ELASTICSEARCH_URL", "http://localhost:9200")) {
+    val systemEnv = System.getenv()
+
+    val realm = if(systemEnv.get("ELASTIC_PRINCIPAL") != null) {
+      new RealmBuilder()
+        .setPrincipal("ELASTIC_PRINCIPAL").setPassword("ELASTIC_PASSWORD")
+        .setUsePreemptiveAuth(true).setScheme(AuthScheme.BASIC)
+        .build()
+    } else {
+      new RealmBuilder().build()
+    }
+
+    ESClient.using(systemEnv.getOrDefault("ELASTICSEARCH_URL", "http://localhost:9200"), config = new AsyncHttpClientConfig.Builder()
+      .setRealm(realm)
+      .build() ) {
       client =>
         val result = action(client)
         result
