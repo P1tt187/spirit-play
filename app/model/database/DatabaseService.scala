@@ -28,7 +28,7 @@ sealed trait DatabaseService[A <: AnyRef] {
 
     val realm = if(systemEnv.get("ELASTIC_PRINCIPAL") != null) {
       new RealmBuilder()
-        .setPrincipal("ELASTIC_PRINCIPAL").setPassword("ELASTIC_PASSWORD")
+        .setPrincipal(systemEnv.get("ELASTIC_PRINCIPAL")).setPassword(systemEnv.get("ELASTIC_PASSWORD"))
         .setUsePreemptiveAuth(true).setScheme(AuthScheme.BASIC)
         .build()
     } else {
