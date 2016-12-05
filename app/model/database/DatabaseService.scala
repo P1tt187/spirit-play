@@ -22,7 +22,7 @@ sealed trait DatabaseService[A <: AnyRef] {
 
   def apply[A](action: ESClient => A): A = {
 
-    ESClient.using(System.getProperty("ELASTICSEARCH_URL", "http://localhost:9200")) {
+    ESClient.using(System.getenv().getOrDefault("ELASTICSEARCH_URL", "http://localhost:9200")) {
       client =>
         val result = action(client)
         result
