@@ -29,7 +29,6 @@ object ScheduleParseActor {
 class ScheduleParseActor @Inject()(@Named("shortcutParser") shortcutParser: ActorRef) extends Actor {
   override def receive: Receive = {
     case ParseSchedule(scheduleList) =>
-      Logger.debug("start parsing")
       val parseResults = scheduleList.map {
         element =>
           val (kind, contentParts) = element

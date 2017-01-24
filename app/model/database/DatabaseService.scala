@@ -10,6 +10,7 @@ import model.schedule.meta.{ScheduleDate, SemesterMode}
 import org.elasticsearch.action.search.SearchRequestBuilder
 import play.api.Logger
 
+import scala.collection.mutable.ListBuffer
 import scala.reflect.ClassTag
 
 /**
@@ -44,36 +45,36 @@ sealed trait DatabaseService[A <: AnyRef] {
     }
   }
 
-  def insert(value: A) {
+  def insert(value: A): Either[Map[String, Any], Map[String, Any]] = {
     apply {
       implicit client =>
         // Logger.debug("insert data " + value)
-        client.insert(config, value)
+        val res = client.insert(config, value)
         client.refresh(config)
+        res
     }
   }
 
   def insert(values: Traversable[A]) {
-    var notInserted = List[A]()
+    val notInserted = ListBuffer[A]()
     values.foreach {
       v =>
         apply {
           implicit client =>
-            val res = client.insert(config, v)
-            res match {
-              case Left(_) =>
-                Thread.sleep(1000)
-                notInserted:+=v
-              case _ =>
-            }
+          val res = client.insert(config,v)
+          res match {
+            case Left(_) =>
+              Thread.sleep(1000)
+              notInserted += v
+            case _ =>
+          }
         }
     }
-    Logger.debug("not inserted: " + notInserted)
     if(notInserted.nonEmpty) {
       Logger.debug("retry inserting: " + notInserted)
       insert(notInserted)
     }
-   // apply(_.refresh(config))
+    apply(_.refresh(config))
   }
 
   def insertJson(json: String): Either[Map[String, Any], Map[String, Any]] = {
@@ -169,6 +170,7 @@ sealed trait DatabaseService[A <: AnyRef] {
     list[T] {
       searcher =>
         searcher.setQuery(matchAllQuery)
+        searcher.setSize(10000)
     }
   }
 
