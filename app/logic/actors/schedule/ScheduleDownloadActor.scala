@@ -35,11 +35,10 @@ class ScheduleDownloadActor @Inject()(ws: WSClient, @Named("parseActor") parseAc
 
   override def receive: Receive = {
     case DownloadSchedule =>
-      LectureDA.findAllExtended[Lecture]()
-        .foreach(lec => LectureDA.delete(lec.id))
-      ScheduleDA.findAllExtended[Schedule]()
-        .foreach(sch => ScheduleDA.delete(sch.id))
-
+      val lectures = LectureDA.findAllExtended[Lecture]().map(_.id)
+      LectureDA.delete(lectures)
+      val schedules = ScheduleDA.findAllExtended[Schedule]().map(_.id)
+      ScheduleDA.delete(schedules)
       val baseUrl = configuration.underlying.getString("schedule.baseUrl")
 
       val lectureResults = uncachedCourseNames.map {

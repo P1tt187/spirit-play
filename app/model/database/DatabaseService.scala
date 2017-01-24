@@ -1,7 +1,7 @@
 package model.database
 
+import com.ning.http.client.AsyncHttpClientConfig
 import com.ning.http.client.Realm.{AuthScheme, RealmBuilder}
-import com.ning.http.client.{AsyncHttpClient, AsyncHttpClientConfig}
 import controllers.CourseName
 import jp.co.bizreach.elasticsearch4s._
 import model.news.{LatestNumber, NewsEntry}
@@ -54,14 +54,26 @@ sealed trait DatabaseService[A <: AnyRef] {
   }
 
   def insert(values: Traversable[A]) {
-    apply {
-      implicit client =>
-        values.foreach {
-          v =>
-            client.insert(config, v)
+    var notInserted = List[A]()
+    values.foreach {
+      v =>
+        apply {
+          implicit client =>
+            val res = client.insert(config, v)
+            res match {
+              case Left(_) =>
+                Thread.sleep(1000)
+                notInserted:+=v
+              case _ =>
+            }
         }
-        client.refresh(config)
     }
+    Logger.debug("not inserted: " + notInserted)
+    if(notInserted.nonEmpty) {
+      Logger.debug("retry inserting: " + notInserted)
+      insert(notInserted)
+    }
+   // apply(_.refresh(config))
   }
 
   def insertJson(json: String): Either[Map[String, Any], Map[String, Any]] = {
@@ -96,6 +108,20 @@ sealed trait DatabaseService[A <: AnyRef] {
         val result = client.delete(config, id)
         client.refresh(config)
         result
+    }
+  }
+
+  def delete(ids: Traversable[String]): Unit = {
+    ids.foreach{
+      id=>
+        apply{
+          implicit client =>
+            client.delete(config,id)
+        }
+    }
+    apply{
+      implicit client =>
+        client.refresh(config)
     }
   }
 
@@ -143,7 +169,6 @@ sealed trait DatabaseService[A <: AnyRef] {
     list[T] {
       searcher =>
         searcher.setQuery(matchAllQuery)
-        searcher.setSize(10000)
     }
   }
 

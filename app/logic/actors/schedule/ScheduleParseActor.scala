@@ -29,6 +29,7 @@ object ScheduleParseActor {
 class ScheduleParseActor @Inject()(@Named("shortcutParser") shortcutParser: ActorRef) extends Actor {
   override def receive: Receive = {
     case ParseSchedule(scheduleList) =>
+      Logger.debug("start parsing")
       val parseResults = scheduleList.map {
         element =>
           val (kind, contentParts) = element
@@ -38,10 +39,10 @@ class ScheduleParseActor @Inject()(@Named("shortcutParser") shortcutParser: Acto
 
       val blocks = parseResults.filter(_.title.nonEmpty)
       val lecturesList = parseResults.filter(_.title.isEmpty).flatMap( _.scheduleData )
+      Logger.debug("blocks: " + blocks.size)
 
-      blocks.foreach{ b=>
-        ScheduleDA.insert(b)
-      }
+      ScheduleDA.insert(blocks)
+
       /** find lectures for multiple courses */
      val lectures = lecturesList.map(_.uuid).distinct.map{
         uuid=>
@@ -50,7 +51,7 @@ class ScheduleParseActor @Inject()(@Named("shortcutParser") shortcutParser: Acto
           val alternatives = lects.flatMap(_.alternatives).distinct
           lects.head.copy(course = course, alternatives = alternatives)
       }
-
+      Logger.debug("lectures: " + lectures.size)
       LectureDA.insert(lectures)
       Logger.debug("finished parsing")
 

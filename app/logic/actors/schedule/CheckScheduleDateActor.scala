@@ -28,7 +28,7 @@ object CheckScheduleDateActor {
 
 /** this actor check the last modifiacation of public schedule */
 @Singleton
-class CheckScheduleDateActor @Inject()(configuration: Configuration, @Named("scheduleDownloader") scheduleDownloadActor: ActorRef, @Named("groupParseActor") groupParseActor: ActorRef, @Named("tweetActor") tweetActor: ActorRef) extends Actor {
+class CheckScheduleDateActor @Inject()(configuration: Configuration, @Named("scheduleDownloader") scheduleDownloadActor: ActorRef, @Named("tweetActor") tweetActor: ActorRef) extends Actor {
 
   import CheckScheduleDateActor._
 
@@ -57,7 +57,7 @@ class CheckScheduleDateActor @Inject()(configuration: Configuration, @Named("sch
       }
 
       scheduleDownloadActor ! DownloadSchedule
-      groupParseActor ! ParseGroups
+
 
       import model.database.SemesterModeDA._
       val mode = if (headContent.text().contains("Sommer")) {

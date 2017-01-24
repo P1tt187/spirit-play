@@ -4,8 +4,9 @@ import java.nio.charset.StandardCharsets
 import java.util.Scanner
 import javax.inject._
 
-import akka.actor.Actor
+import akka.actor.{Actor, ActorRef}
 import helpers.SpiritHelper
+import logic.actors.schedule.GroupParseActor.ParseGroups
 import logic.actors.schedule.ShortCutParseActor.ParseShortCuts
 import model.database.{LectureDA, ScheduleDA}
 import model.schedule.data.{Lecture, Schedule}
@@ -27,7 +28,7 @@ object ShortCutParseActor {
 
 /** this actor will parse all shortcuts */
 @Singleton
-class ShortCutParseActor @Inject()(ws: WSClient) extends Actor with SpiritHelper {
+class ShortCutParseActor @Inject()(ws: WSClient, @Named("groupParseActor") groupParseActor: ActorRef) extends Actor with SpiritHelper {
 
   private def replaceHTMLExtraSymbols(str: String) = {
     str.replaceAll("&nbsp;", " ")
@@ -100,5 +101,6 @@ class ShortCutParseActor @Inject()(ws: WSClient) extends Actor with SpiritHelper
       Logger.debug("Finished parsing shortcuts")
       sessionCache.clear()
       semesterModeCache.clear()
+      groupParseActor ! ParseGroups
   }
 }
