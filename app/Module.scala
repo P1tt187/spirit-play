@@ -7,6 +7,7 @@ import logic.actors.fakeactivity.FakeActivityActor
 import logic.actors.rss.{DeleteNewsActor, NewsReaderActor, RSSParseActor}
 import logic.actors.schedule._
 import logic.actors.spread.TweetActor
+import model.database.EmbeddedElasticsearchServer
 import model.schedule.data.MSchedule
 import play.api.libs.concurrent.AkkaGuiceSupport
 import services.{FakeActivity, NewsFeedReader, ScheduleParser}
@@ -26,6 +27,7 @@ class Module extends AbstractModule with AkkaGuiceSupport {
   override def configure() = {
     // Use the system clock as the default implementation of Clock
     bind(classOf[Clock]).toInstance(Clock.systemDefaultZone)
+    EmbeddedElasticsearchServer.node
     // bind actors
     bindActor[RSSParseActor]("rssParser")
     bindActor[NewsReaderActor]("NewsReader")
