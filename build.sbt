@@ -27,14 +27,14 @@ libraryDependencies ++= Seq(
   "org.webjars" %% "webjars-play" % "2.5.0",
   "org.webjars" % "jquery" % "3.1.1",
   "org.webjars" % "bootstrap" % "3.3.7-1",
-  "org.webjars" % "bootstrap-select" % "1.9.4",
-  "org.webjars" % "clipboard.js" % "1.5.5",
-  "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.8.4",
+  "org.webjars" % "bootstrap-select" % "1.12.0",
+  "org.webjars" % "clipboard.js" % "1.6.1",
+  "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.8.7",
   "jp.co.bizreach" %% "elastic-scala-httpclient" % "2.0.3" withSources(),
-  "org.jsoup" % "jsoup" % "1.10.1" % "compile->default" withSources,
+  "org.jsoup" % "jsoup" % "1.10.2" % "compile->default" withSources,
   "org.twitter4j" % "twitter4j-core" % "[4.0.4,)",
-  "org.mnode.ical4j" % "ical4j" % "2.0-beta1",
-  "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.1" % Test,
+  "org.mnode.ical4j" % "ical4j" % "2.0.0",
+  "org.scalatestplus.play" %% "scalatestplus-play" % "2.0.0" % Test,
   "de.leanovate.play-mockws" %% "play-mockws" % "2.5.1" % Test
 ).map(_.exclude("io.netty","netty-transport-native-epoll"))
 
