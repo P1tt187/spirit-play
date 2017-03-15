@@ -3,12 +3,13 @@ import java.time.Clock
 import com.google.inject.AbstractModule
 import errorhandler.ErrorHandler
 import helpers.{SemesterModeCache, SessionCache}
+import logic.actors.fakeactivity.FakeActivityActor
 import logic.actors.rss.{DeleteNewsActor, NewsReaderActor, RSSParseActor}
 import logic.actors.schedule._
 import logic.actors.spread.TweetActor
 import model.schedule.data.MSchedule
 import play.api.libs.concurrent.AkkaGuiceSupport
-import services.{NewsFeedReader, ScheduleParser}
+import services.{FakeActivity, NewsFeedReader, ScheduleParser}
 
 /**
   * This class is a Guice module that tells Guice how to bind several
@@ -36,6 +37,7 @@ class Module extends AbstractModule with AkkaGuiceSupport {
 
     bindActor[CheckScheduleDateActor]("checkSchedule")
     bind(classOf[ScheduleParser]).asEagerSingleton()
+    bind(classOf[FakeActivity]).asEagerSingleton()
 
     bindActor[ScheduleDownloadActor]("scheduleDownloader")
     bindActor[ShortCutParseActor]("shortcutParser")
@@ -43,6 +45,7 @@ class Module extends AbstractModule with AkkaGuiceSupport {
     bind(classOf[MSchedule])
     bindActor[GroupParseActor]("groupParseActor")
     bindActor[TweetActor]("tweetActor")
+    bindActor[FakeActivityActor]("fakeActivityActor")
 
     bind(classOf[SemesterModeCache])
     bind(classOf[SessionCache])
