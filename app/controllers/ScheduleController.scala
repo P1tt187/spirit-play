@@ -20,8 +20,8 @@ import views.html.schedule._
 class ScheduleController @Inject()(mSchedule: MSchedule) extends AbstractController {
 
   /** this will create a page containing all lectures of this semester */
-  def index(): Action[AnyContent] = sessionCache.getOrElse("schedule") {
-    val result = Action {
+  def index(): Action[AnyContent] = sessionCache.cached("schedule") {
+     Action {
       implicit request =>
 
         /** current host needed for calendar feed */
@@ -43,8 +43,6 @@ class ScheduleController @Inject()(mSchedule: MSchedule) extends AbstractControl
         }
         Ok(scheduleMain(Messages("SCHEDULE.PAGETITLE"), courseNames, scheduleDate.date, getSemesterMode(), timeRanges, weekDays, lectures, hostUrl))
     }
-    sessionCache.set("schedule", result)
-    result
   }
 
   /** main part of block lectures */

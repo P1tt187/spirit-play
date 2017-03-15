@@ -41,7 +41,7 @@ class NewsFeedReader @Inject()(clock: Clock, appLifecycle: ApplicationLifecycle,
 
   Logger.info("Mode: " + env.mode)
   if (env.mode == Mode.Prod || env.mode == Mode.Dev) {
-    cancellableFeedParser = system.scheduler.schedule(3 second, 1 hour, newsReaderActor, ReadNews)
+    cancellableFeedParser = system.scheduler.schedule(3 second, 1 minute, newsReaderActor, ReadNews)
     cancellableNewsDeleter = system.scheduler.schedule(10 seconds, 6 hours, deleteNewsActor, DeleteNews)
   }
 

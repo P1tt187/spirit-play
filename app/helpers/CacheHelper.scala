@@ -5,7 +5,7 @@ import javax.inject.{Inject, Singleton}
 import play.api.cache.{CacheApi, _}
 import play.api.mvc.{Action, AnyContent}
 
-import scala.concurrent.duration.Duration
+import scala.concurrent.duration._
 import scala.reflect.ClassTag
 
 /**
@@ -65,10 +65,10 @@ trait CacheHelper {
   }
 
   /** cache http responses */
-  def cached(key: String)(response: => Action[AnyContent]) = {
+  def cached(key: String, expiration: Duration = 4 hours)(response: => Action[AnyContent]) = {
     getOrElse(key) {
       val result = response()
-      set(key, result)
+      set(key, result, expiration)
       result
     }
   }

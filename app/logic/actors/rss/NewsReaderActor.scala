@@ -3,6 +3,7 @@ package logic.actors.rss
 import javax.inject._
 
 import akka.actor._
+import helpers.SpiritHelper
 import play.api.libs.ws.WSClient
 import play.api.{Configuration, Logger}
 
@@ -17,7 +18,7 @@ import scala.concurrent.duration._
 
 @Singleton
 class NewsReaderActor @Inject()(configuration: Configuration, ws: WSClient,
-                                @Named("rssParser") rssParserActor: ActorRef) extends Actor {
+                                @Named("rssParser") rssParserActor: ActorRef) extends Actor with SpiritHelper {
 
   import NewsReaderActor._
   import RSSParseActor._
@@ -26,6 +27,7 @@ class NewsReaderActor @Inject()(configuration: Configuration, ws: WSClient,
 
   override def receive: Receive = {
     case ReadNews =>
+      Logger.debug("Reading news")
       val response = Await.result(ws.url(feedUrl).get(), 10 seconds)
       //Logger.debug(response.statusText)
       if (response.status != 200) {
@@ -33,7 +35,11 @@ class NewsReaderActor @Inject()(configuration: Configuration, ws: WSClient,
       } else {
         // val responseString = response.bodyAsBytes.decodeString(StandardCharsets.ISO_8859_1.toString)
         val responseString = response.body
-        rssParserActor ! RSSFeed(responseString)
+        val cachedValue = sessionCache.getOrElse("feedcontent")("")
+        if(!responseString.equals(cachedValue)) {
+          sessionCache.set("feedcontent", responseString, Duration.Inf)
+          rssParserActor ! RSSFeed(responseString)
+        }
       }
     case PoisonPill =>
 

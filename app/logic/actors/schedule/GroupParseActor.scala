@@ -83,6 +83,7 @@ class GroupParseActor @Inject()(ws: WSClient) extends Actor with SpiritHelper {
           }
         }
         Logger.debug("finished parse groups")
+        sessionCache.clear()
       }
   }
 
