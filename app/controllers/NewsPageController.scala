@@ -12,6 +12,7 @@ import play.api.libs.Comet
 import play.api.libs.json.Json
 import play.api.mvc._
 import play.twirl.api.Html
+import play.api.cache.Cached
 
 
 /**
@@ -19,7 +20,7 @@ import play.twirl.api.Html
   * application's home page.
   */
 @Singleton
-class NewsPageController @Inject()(materializer: akka.stream.Materializer) extends AbstractController {
+class NewsPageController @Inject()(materializer: akka.stream.Materializer, cached: Cached) extends AbstractController {
 
   def newsHost = configuration.getString("spirit.host").getOrElse("http://localhost:9000")
 
@@ -29,7 +30,7 @@ class NewsPageController @Inject()(materializer: akka.stream.Materializer) exten
     * will be called when the application receives a `GET` request with
     * a path of `/`.
     */
-  def index = sessionCache.cached("news") {
+  def index = cached("news") {
     Action {
       implicit request =>
         val newsHost = configuration.getString("spirit.host").getOrElse("http://localhost:9000")

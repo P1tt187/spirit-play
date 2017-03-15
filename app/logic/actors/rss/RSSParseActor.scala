@@ -10,6 +10,7 @@ import model.database.NewsEntryDA._
 import model.news.{LatestNumber, NewsEntry}
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.{DateTime, DateTimeZone}
+import play.api.cache.{CacheApi, Cached}
 import play.api.{Configuration, Logger}
 
 import scala.xml.{Elem, Node, XML}
@@ -25,7 +26,8 @@ object RSSParseActor {
 }
 
 /** this will parse an rss feed an create a news entry */
-class RSSParseActor @Inject()(configuration: Configuration, @Named("tweetActor") tweetActor: ActorRef) extends Actor with SpiritHelper {
+class RSSParseActor @Inject()(configuration: Configuration, cache: CacheApi,
+                              @Named("tweetActor") tweetActor: ActorRef) extends Actor with SpiritHelper {
 
   import RSSParseActor._
 
@@ -100,6 +102,7 @@ class RSSParseActor @Inject()(configuration: Configuration, @Named("tweetActor")
           //Logger.debug("insert LatestNumberDA " + maxNumber)
           LatestNumberDA.insert(LatestNumber(maxNumber))
         }
+        cache.remove("news")
       }
   }
 
