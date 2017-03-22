@@ -81,3 +81,5 @@ herokuJdkVersion in Compile := "1.8"
 herokuAppName in Compile := "spirit-play"
 
 deployHeroku in scheduleParser := false
+
+deployHerokuSlug in scheduleParser := false
