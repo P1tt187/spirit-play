@@ -30,7 +30,7 @@ class TweetSpec extends PlaySpec with GuiceOneAppPerSuite {
     .loadConfig(env => Configuration.load(env))
     .in(Mode.Test)
     .build
-/*
+
   "Tweet test" should {
     "Convert news to tweet" in {
       val result = Tweet.newsToTweet(
@@ -50,7 +50,7 @@ class TweetSpec extends PlaySpec with GuiceOneAppPerSuite {
       val expected = "ffffffffffffffffffffffffffffffffffffffffffffffooooooooooooooo ooooooooooooo bbbbbbbbbbbbbbbbbbbbbbbbbbbbb aaaaaaa... /newsEntry/42 #foo #bar"
       result mustEqual expected
     }
-*/
+
     "tweetActorTest" in {
       running(app) {
         val injector = app.injector
@@ -58,7 +58,7 @@ class TweetSpec extends PlaySpec with GuiceOneAppPerSuite {
         actor ! Tweet("Test from Spirit2", "", "#tweet")
       }
     }
-/*
+
     "testshorter" in {
       running(app) {
         WsTestClient.withClient { client =>
@@ -87,5 +87,5 @@ class TweetSpec extends PlaySpec with GuiceOneAppPerSuite {
     }
 
   }
-  */
+
 }

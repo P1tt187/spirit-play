@@ -56,13 +56,8 @@ class TweetActor @Inject()(ws: WSClient) extends Actor with SpiritHelper {
 
   override def receive: Receive = {
     case n: NewsEntry =>
-      var tweet: Tweet = n
-      val longUrl = tweet.url
-      val shortUrl = {
-        val response = Await.result(ws.url("https://is.gd/create.php").withQueryString(("url", longUrl),("format","simple")).get(), 10 seconds)
-        response.body
-      }
-      tweet = tweet.copy(url = shortUrl)
+      val tweet: Tweet = n
+
       self ! tweet
 
     case t: Tweet =>
