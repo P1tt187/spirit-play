@@ -20,6 +20,8 @@ lazy val root = (project in file(".")).enablePlugins(PlayScala, PlayAkkaHttpServ
 
 scalaVersion := "2.11.8"
 
+val ELASTICSEARCHVERSION = "5.2.11"
+
 libraryDependencies ++= Seq(
   filters,
   cache,
@@ -31,12 +33,10 @@ libraryDependencies ++= Seq(
   "org.webjars" % "clipboard.js" % "1.6.1",
   "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.8.7",
   "org.jsoup" % "jsoup" % "1.10.2" % "compile->default" withSources,
-  "org.elasticsearch.client" % "transport" % "5.1.2" withSources(),
-  "org.elasticsearch" % "elasticsearch" % "5.1.2" withSources(),
-  "org.elasticsearch.plugin" % "transport-netty4-client" % "5.1.2" withSources(),
-  "org.apache.logging.log4j" % "log4j-api" % "2.7",
-  "jp.co.bizreach" %% "elastic-scala-httpclient" % "2.0.3" withSources(),
-  "org.twitter4j" % "twitter4j-core" % "[4.0.4,)",
+  "com.sksamuel.elastic4s" %% "elastic4s-core" % ELASTICSEARCHVERSION,
+  "com.sksamuel.elastic4s" %% "elastic4s-play-json" % ELASTICSEARCHVERSION,
+  "com.sksamuel.elastic4s" %% "elastic4s-embedded" % ELASTICSEARCHVERSION,
+    "org.twitter4j" % "twitter4j-core" % "[4.0.4,)",
   "org.mnode.ical4j" % "ical4j" % "2.0.0",
   "org.scalatestplus.play" %% "scalatestplus-play" % "2.0.0" % Test,
   "de.leanovate.play-mockws" %% "play-mockws" % "2.5.1" % Test
@@ -83,4 +83,3 @@ rpmBrpJavaRepackJars := false
 herokuJdkVersion in Compile := "1.8"
 
 herokuAppName in Compile := "spirit-play"
-

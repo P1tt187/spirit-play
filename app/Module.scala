@@ -10,7 +10,7 @@ import logic.actors.spread.TweetActor
 import model.database.EmbeddedElasticsearchServer
 import model.schedule.data.MSchedule
 import play.api.libs.concurrent.AkkaGuiceSupport
-import services.{FakeActivity, NewsFeedReader, ScheduleParser}
+import services.{ElasticSearchService, FakeActivity, NewsFeedReader, ScheduleParser}
 
 /**
   * This class is a Guice module that tells Guice how to bind several
@@ -27,7 +27,6 @@ class Module extends AbstractModule with AkkaGuiceSupport {
   override def configure() = {
     // Use the system clock as the default implementation of Clock
     bind(classOf[Clock]).toInstance(Clock.systemDefaultZone)
-    EmbeddedElasticsearchServer.node
     // bind actors
     bindActor[RSSParseActor]("rssParser")
     bindActor[NewsReaderActor]("NewsReader")
@@ -40,6 +39,7 @@ class Module extends AbstractModule with AkkaGuiceSupport {
     bindActor[CheckScheduleDateActor]("checkSchedule")
     bind(classOf[ScheduleParser]).asEagerSingleton()
     bind(classOf[FakeActivity]).asEagerSingleton()
+    bind(classOf[ElasticSearchService]).asEagerSingleton()
 
     bindActor[ScheduleDownloadActor]("scheduleDownloader")
     bindActor[ShortCutParseActor]("shortcutParser")
