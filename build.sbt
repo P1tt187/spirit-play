@@ -16,7 +16,7 @@ lazy val root = (project in file(".")).enablePlugins(PlayScala, PlayAkkaHttpServ
   settings(
     buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
     buildInfoPackage := "meta"
-  ).dependsOn(scheduleParser).aggregate(scheduleParser)
+  ).dependsOn(scheduleParser)
 
 scalaVersion := "2.11.8"
 
@@ -80,6 +80,3 @@ herokuJdkVersion in Compile := "1.8"
 
 herokuAppName in Compile := "spirit-play"
 
-deployHeroku in scheduleParser := false
-
-deployHerokuSlug in scheduleParser := false
