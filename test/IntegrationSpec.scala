@@ -1,4 +1,5 @@
 import org.scalatestplus.play._
+import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.{Configuration, Mode}
 import play.api.cache.{CacheApi, EhCacheModule}
 import play.api.inject._
@@ -11,7 +12,7 @@ import util.FakeCache
  * add your integration spec here.
  * An integration test will fire up a whole play application in a real (or headless) browser
  */
-class IntegrationSpec extends PlaySpec with OneServerPerSuite with OneBrowserPerTest with HtmlUnitFactory {
+class IntegrationSpec extends PlaySpec with GuiceOneServerPerSuite with OneBrowserPerTest with HtmlUnitFactory {
 
   implicit override lazy val app = new GuiceApplicationBuilder()
     .overrides(bind[CacheApi].to[FakeCache])

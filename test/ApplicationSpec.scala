@@ -1,5 +1,6 @@
 
 import org.scalatestplus.play._
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api._
 import play.api.cache.CacheApi
 import play.api.inject._
@@ -13,7 +14,7 @@ import util.FakeCache
   * You can mock out a whole application including requests, plugins etc.
   * For more information, consult the wiki.
   */
-class ApplicationSpec extends PlaySpec with OneAppPerSuite {
+class ApplicationSpec extends PlaySpec with GuiceOneAppPerSuite {
 
   implicit override lazy val app = new GuiceApplicationBuilder()
     .overrides(bind[CacheApi].to[FakeCache])

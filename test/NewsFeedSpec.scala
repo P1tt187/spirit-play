@@ -2,6 +2,7 @@ import model.database.{LatestNumberDA, NewsEntryDA, SemesterModeDA}
 import model.news.{LatestNumber, NewsEntry}
 import model.schedule.meta.SemesterMode
 import org.scalatestplus.play._
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api._
 import play.api.cache.{CacheApi, EhCacheModule}
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -16,7 +17,7 @@ import scala.concurrent.duration._
   * @author fabian 
   * @since 27.03.16.
   */
-class NewsFeedSpec extends PlaySpec with OneAppPerSuite {
+class NewsFeedSpec extends PlaySpec with GuiceOneAppPerSuite {
 
   implicit override lazy val app = new GuiceApplicationBuilder()
     .overrides(bind[CacheApi].to[FakeCache])
