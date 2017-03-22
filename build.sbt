@@ -80,4 +80,4 @@ herokuJdkVersion in Compile := "1.8"
 
 herokuAppName in Compile := "spirit-play"
 
-herokuSkipSubProjects in deployHeroku := true
+deployHeroku in scheduleParser := false
