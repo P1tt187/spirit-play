@@ -36,6 +36,7 @@ libraryDependencies ++= Seq(
   "com.sksamuel.elastic4s" %% "elastic4s-core" % ELASTICSEARCHVERSION,
   "com.sksamuel.elastic4s" %% "elastic4s-play-json" % ELASTICSEARCHVERSION,
   "com.sksamuel.elastic4s" %% "elastic4s-embedded" % ELASTICSEARCHVERSION,
+  "com.sksamuel.elastic4s" %% "elastic4s-jackson" % ELASTICSEARCHVERSION,
     "org.twitter4j" % "twitter4j-core" % "[4.0.4,)",
   "org.mnode.ical4j" % "ical4j" % "2.0.0",
   "org.scalatestplus.play" %% "scalatestplus-play" % "2.0.0" % Test,
