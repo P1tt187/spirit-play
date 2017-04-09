@@ -2,8 +2,10 @@ package logic.actors.schedule
 
 import javax.inject._
 
-import akka.actor.{Actor, ActorRef}
-import logic.actors.schedule.GroupParseActor.ParseGroups
+import akka.actor.{Actor, ActorRef, ActorSystem}
+import akka.pattern.ask
+import akka.util.Timeout
+import logic.actors.database.DatabaseActor.{DatabaseIsNotReady, DatabaseIsReady, _}
 import logic.actors.schedule.ScheduleDownloadActor._
 import model.schedule.meta.{EMode, ScheduleDate, SemesterMode}
 import model.spread.Tweet
@@ -14,6 +16,9 @@ import org.jsoup.Jsoup
 import play.api.Configuration
 
 import scala.collection.JavaConversions._
+import scala.concurrent.Await
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration._
 
 /**
   * @author fabian 
@@ -28,7 +33,7 @@ object CheckScheduleDateActor {
 
 /** this actor check the last modifiacation of public schedule */
 @Singleton
-class CheckScheduleDateActor @Inject()(configuration: Configuration, @Named("scheduleDownloader") scheduleDownloadActor: ActorRef, @Named("tweetActor") tweetActor: ActorRef) extends Actor {
+class CheckScheduleDateActor @Inject()(configuration: Configuration, @Named("scheduleDownloader") scheduleDownloadActor: ActorRef, @Named("tweetActor") tweetActor: ActorRef, @Named("databaseActor") databaseActor: ActorRef, system: ActorSystem) extends Actor {
 
   import CheckScheduleDateActor._
 
@@ -38,43 +43,50 @@ class CheckScheduleDateActor @Inject()(configuration: Configuration, @Named("sch
   override def receive = {
     case CheckScheduleDate =>
 
-      val headContent = Jsoup.connect(baseUrl + headPart).get
-      val bolds = headContent.select("B")
+      implicit val timeout = Timeout(30 seconds)
+      val future = databaseActor ? IsDataBaseReady
+      val result = Await.result(future, timeout.duration)
 
-      bolds.foreach {
-        b =>
-          if (b.text().matches("\\d{1,2}[.]\\d{1,2}[.]\\d{4}")) {
-            import model.database.ScheduleDateDA._
-
-            val scheduleDate = DateTimeFormat.forPattern("dd.MM.yyyy").withZone(DateTimeZone.forID("Europe/Berlin")).parseDateTime(b.text())
-            findAllExtended[ScheduleDate]().headOption match {
-              case None => insert(ScheduleDate(scheduleDate))
-              case Some(sd) =>
-                val id = sd.id
-                update(id, ScheduleDate(scheduleDate))
-            }
-          }
+      val allowedToWork = result match {
+        case DatabaseIsNotReady => false
+        case DatabaseIsReady => true
+        case _ => false
       }
-
-      scheduleDownloadActor ! DownloadSchedule
-
-
-      import model.database.SemesterModeDA._
-      val mode = if (headContent.text().contains("Sommer")) {
-        EMode.SUMMER
+      if (!allowedToWork) {
+        system.scheduler.scheduleOnce(12 minutes, self, CheckScheduleDate)
       } else {
-        EMode.WINTER
-      }
-      findAllExtended[SemesterMode]().headOption match {
-        case Some(sm) =>
-          val id = sm.id
-          if (mode != EMode.valueOf(sm.doc.mode)) {
-            tweetActor ! Tweet("Neuer Stundenplan online", hostUrl, "")
-          }
-          update(id, SemesterMode(mode.name()))
-        case None =>
-          insert(SemesterMode(mode.name()))
-      }
 
+        val headContent = Jsoup.connect(baseUrl + headPart).get
+        val bolds = headContent.select("B")
+
+        bolds.foreach {
+          b =>
+            if (b.text().matches("\\d{1,2}[.]\\d{1,2}[.]\\d{4}")) {
+              val scheduleDate = DateTimeFormat.forPattern("dd.MM.yyyy").withZone(DateTimeZone.forID("Europe/Berlin")).parseDateTime(b.text())
+
+              databaseActor ! StoreScheduleDate(ScheduleDate(scheduleDate))
+            }
+        }
+
+
+        scheduleDownloadActor ! DownloadSchedule
+
+
+        val mode = if (headContent.text().contains("Sommer")) {
+          EMode.SUMMER
+        } else {
+          EMode.WINTER
+        }
+
+        val currentMode = Await.result(databaseActor ? GiveSemesterMode, 30 seconds).asInstanceOf[SemesterMode]
+
+
+        if (mode != EMode.valueOf(currentMode.mode)) {
+          tweetActor ! Tweet("Neuer Stundenplan online", hostUrl, "")
+        }
+
+        databaseActor ! StoreSemesterMode(SemesterMode(mode.name()))
+      }
   }
+
 }

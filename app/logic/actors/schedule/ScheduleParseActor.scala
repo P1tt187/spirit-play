@@ -3,9 +3,9 @@ package logic.actors.schedule
 import javax.inject._
 
 import akka.actor.{Actor, ActorRef}
+import logic.actors.database.DatabaseActor.{StoreLectures, StoreSchedules}
 import logic.actors.schedule.ScheduleParseActor.ParseSchedule
 import logic.actors.schedule.ShortCutParseActor.ParseShortCuts
-import model.database.{LectureDA, ScheduleDA}
 import model.schedule.data.Lecture._
 import model.schedule.data.Schedule
 import org.fhs.spirit.scheduleparser.ScheduleToJSONConverter
@@ -26,7 +26,7 @@ object ScheduleParseActor {
 }
 
 @Singleton
-class ScheduleParseActor @Inject()(@Named("shortcutParser") shortcutParser: ActorRef) extends Actor {
+class ScheduleParseActor @Inject()(@Named("shortcutParser") shortcutParser: ActorRef, @Named("databaseActor") databaseActor: ActorRef) extends Actor {
   override def receive: Receive = {
     case ParseSchedule(scheduleList) =>
       val parseResults = scheduleList.map {
@@ -40,7 +40,7 @@ class ScheduleParseActor @Inject()(@Named("shortcutParser") shortcutParser: Acto
       val lecturesList = parseResults.filter(_.title.isEmpty).flatMap( _.scheduleData )
       Logger.debug("blocks: " + blocks.size)
 
-      ScheduleDA.insert(blocks)
+      databaseActor ! StoreSchedules(blocks)
 
       /** find lectures for multiple courses */
      val lectures = lecturesList.map(_.uuid).distinct.map{
@@ -51,9 +51,8 @@ class ScheduleParseActor @Inject()(@Named("shortcutParser") shortcutParser: Acto
           lects.head.copy(course = course, alternatives = alternatives)
       }
       Logger.debug("lectures: " + lectures.size)
-      LectureDA.insert(lectures)
+      databaseActor ! StoreLectures(lectures)
       Logger.debug("finished parsing")
-
 
       shortcutParser ! ParseShortCuts
   }

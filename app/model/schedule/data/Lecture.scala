@@ -20,5 +20,5 @@ object Schedule {
   implicit val format = Json.format[Schedule]
 }
 
-case class Schedule(title: String, scheduleData: List[Lecture], scheduleDate:time.DateTime)
+case class Schedule(title: String, scheduleData: List[Lecture], scheduleDate: time.DateTime, uid: String)
 

@@ -4,14 +4,18 @@ import java.util.regex.Pattern
 import javax.inject._
 
 import akka.actor._
+import akka.pattern.ask
+import akka.util.Timeout
 import helpers.SpiritHelper
-import model.database.LatestNumberDA
-import model.database.NewsEntryDA._
+import logic.actors.database.DatabaseActor._
 import model.news.{LatestNumber, NewsEntry}
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.{DateTime, DateTimeZone}
 import play.api.{Configuration, Logger}
 
+import scala.concurrent.Await
+import scala.concurrent.duration._
+import scala.language.postfixOps
 import scala.xml.{Elem, Node, XML}
 
 /**
@@ -26,82 +30,86 @@ object RSSParseActor {
 
 /** this will parse an rss feed an create a news entry */
 class RSSParseActor @Inject()(configuration: Configuration,
-                              @Named("tweetActor") tweetActor: ActorRef) extends Actor with SpiritHelper {
+                              @Named("tweetActor") tweetActor: ActorRef, @Named("databaseActor") databaseActor: ActorRef) extends Actor with SpiritHelper {
 
   import RSSParseActor._
 
   override def receive: Receive = {
     case RSSFeed(feedContent) =>
 
-      val (id, latestNumber) = LatestNumberDA.findAllExtended[LatestNumber]().headOption match {
-        case None => ("", LatestNumber(0))
-        case Some(n) => (n.id, n.doc)
+      implicit val timeout = Timeout(30 seconds)
+      val future = databaseActor ? IsDataBaseReady
+      val result = Await.result(future, timeout.duration)
+
+      val allowedToWork = result match {
+        case DatabaseIsNotReady => false
+        case DatabaseIsReady => true
+        case _ => false
       }
-      val feedXml = XML.loadString(feedContent)
-      val newEntrys = extractEntrys(feedXml)
+      if (allowedToWork) {
 
-      val srcLinks = newEntrys.map(_.srcLink)
+        val latestNumber = Await.result(databaseActor ? GiveLatestNumber, timeout.duration).asInstanceOf[LatestNumber]
 
-      val existingItems = findAllExtended[NewsEntry].filter(ei => srcLinks.contains(ei.doc.srcLink))
+        val feedXml = XML.loadString(feedContent)
+        val newEntrys = extractEntrys(feedXml)
 
-      val insertOrUpdableItems = newEntrys.par.filterNot {
-        entry =>
-          existingItems.exists(ei => ei.doc.newsMessage.equals(entry.newsMessage))
-      }.seq
+        val srcLinks = newEntrys.map(_.srcLink)
 
-      var updateableEntrys = insertOrUpdableItems.filter {
-        entry =>
-          existingItems.exists(ei => ei.doc.srcLink.equals(entry.srcLink) && !ei.doc.newsMessage.equals(entry.newsMessage))
-      }
+        val allExistingItems = Await.result(databaseActor ? GiveNewsEntrys, timeout.duration).asInstanceOf[NewsEntrys].newsEntrys
 
+        val existingItems = allExistingItems.filter(ei => srcLinks.contains(ei.srcLink))
 
-      var insertableEntrys = insertOrUpdableItems.diff(updateableEntrys)
-      Logger.debug(this.getClass.getSimpleName + " " + insertableEntrys.size)
-      var number = latestNumber.number
+        val insertOrUpdableItems = newEntrys.par.filterNot {
+          entry =>
+            existingItems.exists(ei => ei.newsMessage.equals(entry.newsMessage))
+        }.seq
 
-      //insertableEntrys.foreach( ie=> insertJson( Json.stringify(Json.toJson(ie)) ))
-      if (insertableEntrys.nonEmpty) {
-        insertableEntrys = insertableEntrys.map { ie =>
-          number += 1
-          val numberedEntry = ie.copy(number = number)
-          insert(numberedEntry)
-          numberedEntry
+        var updateableEntrys = insertOrUpdableItems.filter {
+          entry =>
+            existingItems.exists(ei => ei.srcLink.equals(entry.srcLink) && !ei.newsMessage.equals(entry.newsMessage))
         }
-      }
-      if (updateableEntrys.nonEmpty) {
-        updateableEntrys = updateableEntrys.map {
-          ue =>
-            val id = existingItems.find {
-              ei =>
-                ei.doc.srcLink.equals(ue.srcLink)
-            }.get.id
+
+
+        var insertableEntrys = insertOrUpdableItems.diff(updateableEntrys)
+        Logger.debug(this.getClass.getSimpleName + " " + insertableEntrys.size)
+        var number = latestNumber.number
+
+        //insertableEntrys.foreach( ie=> insertJson( Json.stringify(Json.toJson(ie)) ))
+        if (insertableEntrys.nonEmpty) {
+          insertableEntrys = insertableEntrys.map { ie =>
             number += 1
-            val updateString = "[Update]"
-            val newTitle = if (ue.title.contains(updateString)) {
-              updateString + ue.title
-            } else {
-              ue.title
-            }
-            val numberedEntry = ue.copy(number = number, title = newTitle)
-            update(id, numberedEntry)
+            val numberedEntry = ie.copy(number = number)
+            databaseActor ! InsertNewsEntry(numberedEntry)
             numberedEntry
+          }
         }
-      }
-      if (insertableEntrys.nonEmpty || updateableEntrys.nonEmpty) {
-        val results = insertableEntrys ++ updateableEntrys
-        results.foreach(ne => tweetActor ! ne)
-        val theEntryNumbers = results.map(_.number)
-        //Logger.debug(theEntryNumbers.toString())
-        val maxNumber = theEntryNumbers.max
+        if (updateableEntrys.nonEmpty) {
+          updateableEntrys = updateableEntrys.map {
+            ue =>
 
-        if (id.nonEmpty) {
-          //Logger.debug("update LatestNumberDA")
-          LatestNumberDA.update(id, LatestNumber(maxNumber))
-        } else {
-          //Logger.debug("insert LatestNumberDA " + maxNumber)
-          LatestNumberDA.insert(LatestNumber(maxNumber))
+              number += 1
+              val updateString = "[Update]"
+              val newTitle = if (ue.title.contains(updateString)) {
+                updateString + ue.title
+              } else {
+                ue.title
+              }
+              val numberedEntry = ue.copy(number = number, title = newTitle)
+              databaseActor ! UpdateNewsEntry(numberedEntry)
+              numberedEntry
+          }
         }
-        sessionCache.remove("news")
+        if (insertableEntrys.nonEmpty || updateableEntrys.nonEmpty) {
+          val results = insertableEntrys ++ updateableEntrys
+          results.foreach(ne => tweetActor ! ne)
+          val theEntryNumbers = results.map(_.number)
+          //Logger.debug(theEntryNumbers.toString())
+          val maxNumber = theEntryNumbers.max
+
+          databaseActor ! StoreLatestNumber(LatestNumber(maxNumber))
+
+          sessionCache.remove("news")
+        }
       }
   }
 

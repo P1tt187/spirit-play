@@ -2,9 +2,11 @@ package controllers
 
 import javax.inject._
 
+import akka.util.Timeout
 import helpers.SpiritHelper
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc._
+import scala.concurrent.duration._
 
 /**
   * @author fabian 
@@ -20,6 +22,8 @@ abstract class AbstractController extends Controller with SpiritHelper with I18n
   @Inject() protected implicit var webJarAssets: WebJarAssets = null
   /** message api for translation */
   @Inject() protected implicit var m: MessagesApi = null
+
+  implicit val timeout = Timeout(60 seconds)
 
   override def messagesApi: MessagesApi = m
 

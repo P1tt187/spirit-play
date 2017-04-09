@@ -9,10 +9,10 @@ import java.nio.charset.StandardCharsets
 import java.util.regex.Pattern
 import javax.inject._
 
-import akka.actor.Actor
+import akka.actor.{Actor, ActorRef}
 import helpers.SpiritHelper
+import logic.actors.database.DatabaseActor.StoreGroups
 import logic.actors.schedule.GroupParseActor.ParseGroups
-import model.database.GroupDA
 import model.schedule.data.{Group, Student}
 import org.jsoup.Jsoup
 import play.api.Logger
@@ -31,13 +31,12 @@ object GroupParseActor {
 
 /** this actor parse all groups */
 @Singleton
-class GroupParseActor @Inject()(ws: WSClient) extends Actor with SpiritHelper {
+class GroupParseActor @Inject()(ws: WSClient, @Named("databaseActor") databaseActor: ActorRef) extends Actor with SpiritHelper {
 
   override def receive: Receive = {
     case ParseGroups =>
       Logger.debug("begin parse groups")
 
-      GroupDA.findAllExtended[Group]().foreach(g => GroupDA.delete(g.id))
       val baseUrl = configuration.underlying.getString("schedule.baseUrl")
       val outcome = configuration.underlying.getString("schedule.groups")
       val httpResult = Await.result(ws.url(baseUrl + outcome).get(), 10 seconds)
@@ -64,24 +63,24 @@ class GroupParseActor @Inject()(ws: WSClient) extends Actor with SpiritHelper {
         }
 
         /** third: combine all data and save it */
-        for (groupIndex <- groupTypes.indices) {
-          val (theClass, groupType) = groupTypes(groupIndex)
+        val theGroups = groupTypes.indices.flatMap {
+          groupIndex =>
+            val (theClass, groupType) = groupTypes(groupIndex)
 
-          var i = 0
-          studentStructure(groupIndex).foreach {
-            groupList =>
-              i += 1
+            var i = 0
+            studentStructure(groupIndex).map {
+              groupList =>
+                i += 1
 
-              val studentList = groupList.map {
-                case (firstname, lastname) =>
-                  Student(firstname, lastname)
-              }.toList.filterNot(s => s.firstName.isEmpty && s.lastname.isEmpty)
+                val studentList = groupList.map {
+                  case (firstname, lastname) =>
+                    Student(firstname, lastname)
+                }.toList.filterNot(s => s.firstName.isEmpty && s.lastname.isEmpty)
 
-              val group = Group(theClass, groupType, i, studentList)
-
-              GroupDA.insert(group)
-          }
+                Group(theClass, groupType, i, studentList)
+            }
         }
+        databaseActor ! StoreGroups(theGroups.toList)
         Logger.debug("finished parse groups")
         sessionCache.clear()
       }

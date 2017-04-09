@@ -2,8 +2,10 @@ package controllers
 
 import javax.inject._
 
+import akka.actor.ActorRef
+import akka.pattern.ask
 import akka.stream.scaladsl.Source
-import model.database.NewsEntryDA
+import logic.actors.database.DatabaseActor.{GiveNewsEntrys, NewsEntrys}
 import model.news.NewsEntry
 import org.joda.time.format.ISODateTimeFormat
 import play.api.http.ContentTypes
@@ -13,12 +15,17 @@ import play.api.libs.json.Json
 import play.api.mvc._
 import play.twirl.api.Html
 
+import scala.concurrent.Await
+import scala.concurrent.duration._
+import scala.language.postfixOps
+
 /**
   * This controller creates an `Action` to handle HTTP requests to the
   * application's home page.
   */
 @Singleton
-class NewsPageController @Inject()(materializer: akka.stream.Materializer) extends AbstractController {
+class NewsPageController @Inject()(materializer: akka.stream.Materializer, @Named("databaseActor") databaseActor: ActorRef) extends AbstractController {
+
 
   def newsHost = configuration.getString("spirit.host").getOrElse("http://localhost:9000")
 
@@ -32,8 +39,12 @@ class NewsPageController @Inject()(materializer: akka.stream.Materializer) exten
     Action {
       implicit request =>
         val newsHost = configuration.getString("spirit.host").getOrElse("http://localhost:9000")
-        val newsEntrys = NewsEntryDA.findAll[NewsEntry]().sortBy(-_.number)
-        val minNr = if(newsEntrys.isEmpty){-2} else { newsEntrys.map(_.number).max } + 1
+        val newsEntrys = Await.result(databaseActor ? GiveNewsEntrys, 60 seconds).asInstanceOf[NewsEntrys].newsEntrys.sortBy(-_.number)
+        val minNr = if (newsEntrys.isEmpty) {
+          -2
+        } else {
+          newsEntrys.map(_.number).max
+        } + 1
         Ok(views.html.news.index(Messages("NEWSPAGE.PAGETITLE"), courseNames, newsEntrys, newsHost, minNumber = minNr))
     }
   }
@@ -49,11 +60,13 @@ class NewsPageController @Inject()(materializer: akka.stream.Materializer) exten
     Action {
       implicit req =>
         implicit val mat = materializer
+
         def filterNews = {
+          val allEntrys = Await.result(databaseActor ? GiveNewsEntrys, 60 seconds).asInstanceOf[NewsEntrys].newsEntrys
           var result = if (number != -1) {
-            NewsEntryDA.findAll[NewsEntry]().filter(_.number == number)
+            allEntrys.filter(_.number == number)
           } else {
-            NewsEntryDA.findAll[NewsEntry]()
+            allEntrys
           }
 
           result = if (minNumber != -1) {
@@ -62,11 +75,13 @@ class NewsPageController @Inject()(materializer: akka.stream.Materializer) exten
             result
           }
 
-          if (!searchTag.equals("-1")) {
+          result = if (!searchTag.equals("-1")) {
             result.filter(_.tags.contains(searchTag))
           } else {
             result
           }
+
+          result
         }
 
         def newsSource = Source(filterNews.sortBy(entry => entry.number).map {
@@ -81,15 +96,15 @@ class NewsPageController @Inject()(materializer: akka.stream.Materializer) exten
     *
     * @param num number of the news
     */
-  def newsEntry(num: Long) = sessionCache.cached("newsEntry" + num ) {
+  def newsEntry(num: Long) = sessionCache.cached("newsEntry" + num) {
     Action {
       implicit request =>
-        val entrys = NewsEntryDA.findAll[NewsEntry]().filter(_.number == num)
+        val entrys = Await.result(databaseActor ? GiveNewsEntrys, 60 seconds).asInstanceOf[NewsEntrys].newsEntrys.filter(_.number == num)
         val newsTitle = entrys.headOption match {
           case Some(entry) => entry.title
           case None => Messages("NEWSPAGE.PAGETITLE")
         }
-        if(entrys.nonEmpty) {
+        if (entrys.nonEmpty) {
           Ok(views.html.news.index(newsTitle, courseNames, entrys, newsHost, number = num))
         } else {
           NotFound(views.html.errorpages.pageNotFound())
@@ -115,7 +130,7 @@ class NewsPageController @Inject()(materializer: akka.stream.Materializer) exten
     Action {
       implicit request =>
         val hostUrl = configuration.getString("spirit.host").getOrElse("http://localhost:9000")
-        val news = NewsEntryDA.findAll[NewsEntry]().sortBy(-_.number)
+        val news = Await.result(databaseActor ? GiveNewsEntrys, 60 seconds).asInstanceOf[NewsEntrys].newsEntrys.sortBy(-_.number)
 
         def cdata(data: String) = {
           scala.xml.Unparsed("<![CDATA[%s]]>".format(Html(data)))
@@ -124,18 +139,24 @@ class NewsPageController @Inject()(materializer: akka.stream.Materializer) exten
         val rssFeed =
           <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
             <channel>
-              <title>{Html("Spirit @ FH-Schmalkalden - RSS Feed")}</title>
+              <title>
+                {Html("Spirit @ FH-Schmalkalden - RSS Feed")}
+              </title>
               <link>
                 {hostUrl}
               </link>
-              <description>{Html("RSS Feed für die aktuellen Meldungen am Fachbereich Informatik")}</description>
+              <description>
+                {Html("RSS Feed für die aktuellen Meldungen am Fachbereich Informatik")}
+              </description>
               <atom:link href={request.path} rel="self" type="application/rss+xml"/>
               <language>de-de</language>
               <image>
                 <url>
                   {hostUrl + routes.Assets.versioned("images/logo_spirit.png")}
                 </url>
-                <title>{Html("Spirit @ FH-Schmalkalden - RSS Feed")}</title>
+                <title>
+                  {Html("Spirit @ FH-Schmalkalden - RSS Feed")}
+                </title>
                 <link>
                   {hostUrl}
                 </link>

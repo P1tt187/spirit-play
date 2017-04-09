@@ -7,8 +7,6 @@ import akka.actor.{Actor, ActorRef}
 import helpers.SpiritHelper
 import logic.actors.schedule.ScheduleDownloadActor.DownloadSchedule
 import logic.actors.schedule.ScheduleParseActor._
-import model.database.{LectureDA, ScheduleDA}
-import model.schedule.data.{Lecture, Schedule}
 import org.fhs.spirit.scheduleparser.enumerations.EScheduleKind
 import org.jsoup.Jsoup
 import play.api.libs.ws.WSClient
@@ -35,10 +33,7 @@ class ScheduleDownloadActor @Inject()(ws: WSClient, @Named("parseActor") parseAc
 
   override def receive: Receive = {
     case DownloadSchedule =>
-      val lectures = LectureDA.findAllExtended[Lecture]().map(_.id)
-      LectureDA.delete(lectures)
-      val schedules = ScheduleDA.findAllExtended[Schedule]().map(_.id)
-      ScheduleDA.delete(schedules)
+
       val baseUrl = configuration.underlying.getString("schedule.baseUrl")
 
       val lectureResults = uncachedCourseNames.map {

@@ -6,10 +6,10 @@ import javax.inject._
 
 import akka.actor.{Actor, ActorRef}
 import helpers.SpiritHelper
+import logic.actors.database.DatabaseActor.{StoreLectures, StoreSchedules}
 import logic.actors.schedule.GroupParseActor.ParseGroups
 import logic.actors.schedule.ShortCutParseActor.ParseShortCuts
-import model.database.{LectureDA, ScheduleDA}
-import model.schedule.data.{Lecture, Schedule}
+import model.schedule.data.{Lecture, MSchedule}
 import play.api.Logger
 import play.api.libs.ws.WSClient
 
@@ -28,7 +28,7 @@ object ShortCutParseActor {
 
 /** this actor will parse all shortcuts */
 @Singleton
-class ShortCutParseActor @Inject()(ws: WSClient, @Named("groupParseActor") groupParseActor: ActorRef) extends Actor with SpiritHelper {
+class ShortCutParseActor @Inject()(ws: WSClient, @Named("groupParseActor") groupParseActor: ActorRef, @Named("databaseActor") databaseActor: ActorRef, mSchedule: MSchedule) extends Actor with SpiritHelper {
 
   private def replaceHTMLExtraSymbols(str: String) = {
     str.replaceAll("&nbsp;", " ")
@@ -47,8 +47,8 @@ class ShortCutParseActor @Inject()(ws: WSClient, @Named("groupParseActor") group
 
       val baseurl = configuration.getString("schedule.baseUrl").getOrElse("localhost")
       val outcome = configuration.getString("schedule.shortCuts").getOrElse("abkuerzungsverzeichnis.html")
-      val allLectures = LectureDA.findAllExtended[Lecture]()
-      val allBlocks = ScheduleDA.findAllExtended[Schedule]()
+      val allLectures = mSchedule.getSchedule()
+      val allBlocks = mSchedule.getBlocks()
 
       val result = Await.result(ws.url(baseurl + outcome).get(), 10 seconds)
       if (result.status != 404) {
@@ -71,22 +71,20 @@ class ShortCutParseActor @Inject()(ws: WSClient, @Named("groupParseActor") group
         }
         scanner.close()
 
-        allLectures.foreach {
+        val updatedLectures: List[Lecture] = allLectures.map {
           lec =>
-            val id = lec.id
-            val titlelong = lectureTitles.get(removeWhitespace(lec.doc.lectureName.trim)) match {
+            val titlelong = lectureTitles.get(removeWhitespace(lec.lectureName.trim)) match {
               case Some(v) => v
               case None =>
-                lec.doc.lectureName
+                lec.lectureName
             }
-            val updatetVal = lec.doc.copy(longTitle = titlelong)
-            LectureDA.update(id, updatetVal)
+            val updatetVal = lec.copy(longTitle = titlelong)
+            updatetVal
         }
 
-        allBlocks.foreach {
+        val updatedSchedules = allBlocks.map {
           block =>
-            val id = block.id
-            val updatetBlocks = block.doc.scheduleData.map {
+            val updatetBlocks = block.scheduleData.map {
               sd =>
                 val titleLong = lectureTitles.get(removeWhitespace(sd.lectureName)) match {
                   case Some(v) => v
@@ -95,9 +93,15 @@ class ShortCutParseActor @Inject()(ws: WSClient, @Named("groupParseActor") group
                 }
                 sd.copy(longTitle = titleLong)
             }
-            ScheduleDA.update(id, block.doc.copy(scheduleData = updatetBlocks))
+            block.copy(scheduleData = updatetBlocks)
         }
+
+        databaseActor ! StoreLectures(updatedLectures)
+        databaseActor ! StoreSchedules(updatedSchedules)
+
       }
+
+
       Logger.debug("Finished parsing shortcuts")
       sessionCache.clear()
       semesterModeCache.clear()

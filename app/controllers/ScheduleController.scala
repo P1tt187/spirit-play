@@ -3,7 +3,7 @@ package controllers
 import javax.inject._
 
 import helpers.ICalBuilder
-import model.database.{LectureDA, ScheduleDateDA}
+import model.database.ScheduleDateDA
 import model.schedule.data.{Lecture, MSchedule}
 import model.schedule.meta.ScheduleDate
 import org.joda.time.{DateTime, DateTimeConstants}
@@ -21,7 +21,7 @@ class ScheduleController @Inject()(mSchedule: MSchedule) extends AbstractControl
 
   /** this will create a page containing all lectures of this semester */
   def index(): Action[AnyContent] = sessionCache.cached("schedule") {
-     Action {
+    Action {
       implicit request =>
 
         /** current host needed for calendar feed */
@@ -37,10 +37,7 @@ class ScheduleController @Inject()(mSchedule: MSchedule) extends AbstractControl
         val weekDays = mSchedule.getWeekdays(lectures)
 
         /** this value displays the date when the schedule was updatet last time */
-        val scheduleDate = ScheduleDateDA.findAll[ScheduleDate]().headOption match {
-          case Some(sd) => sd
-          case None => ScheduleDate(new DateTime())
-        }
+        val scheduleDate = mSchedule.getScheduleDate()
         Ok(scheduleMain(Messages("SCHEDULE.PAGETITLE"), courseNames, scheduleDate.date, getSemesterMode(), timeRanges, weekDays, lectures, hostUrl))
     }
   }
@@ -52,7 +49,7 @@ class ScheduleController @Inject()(mSchedule: MSchedule) extends AbstractControl
         val schedules = mSchedule.getBlocks()
         val blockList: List[(Id, CourseName, Blockname)] = schedules.map {
           s =>
-            (s.id, s.doc.scheduleData.head.course.head, s.doc.title)
+            (s.uid, s.scheduleData.head.course.head, s.title)
         }.sortBy(s => (s._2, s._3))
         Ok(blockMain(blockList))
     }
@@ -99,7 +96,7 @@ class ScheduleController @Inject()(mSchedule: MSchedule) extends AbstractControl
     implicit request =>
       val input = request.body.asFormUrlEncoded.get
       val icalInput = input("icalInput").head.split(";").toSet
-      val lectures = LectureDA.findUids(icalInput.toList)
+      val lectures = mSchedule.getSchedule().filter(l => icalInput.contains(l.uuid))
 
       val result: String = createIcalString(lectures)
 
@@ -109,7 +106,7 @@ class ScheduleController @Inject()(mSchedule: MSchedule) extends AbstractControl
   def getCalendarForCourse(courseName: String): Action[AnyContent] = sessionCache.cached("calendar" + courseName) {
     Action {
       implicit request =>
-        val lectures = LectureDA.findForCourse(courseName)
+        val lectures = mSchedule.getSchedule().filter(_.course.contains(courseName))
         val result = createIcalString(lectures)
         Ok(Html(result)).as("text/calendar;charset=UTF-8")
     }
