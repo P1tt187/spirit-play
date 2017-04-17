@@ -32,29 +32,29 @@ class NewsFeedSpec extends PlaySpec with GuiceOneAppPerSuite {
     "delete all entrys" in {
       import NewsEntryDA._
 
-      findAllExtended[NewsEntry]().foreach{
+      findAllExtended[NewsEntry]().get.foreach{
         elem=>
           delete(elem.id)
       }
 
-      LatestNumberDA.findAllExtended[LatestNumber]().foreach(  elem => LatestNumberDA.delete(elem.id) )
+      LatestNumberDA.findAllExtended[LatestNumber]().get.foreach(  elem => LatestNumberDA.delete(elem.id) )
 
-      findAll().isEmpty mustBe true
-      LatestNumberDA.findAllExtended[LatestNumber]().isEmpty mustBe true
-      SemesterModeDA.findAllExtended[SemesterMode]().foreach(elem => SemesterModeDA.delete(elem.id))
-      SemesterModeDA.findAll().isEmpty mustBe true
+      findAll().get.isEmpty mustBe true
+      LatestNumberDA.findAllExtended[LatestNumber]().get.isEmpty mustBe true
+      SemesterModeDA.findAllExtended[SemesterMode]().get.foreach(elem => SemesterModeDA.delete(elem.id))
+      SemesterModeDA.findAll().get.isEmpty mustBe true
     }
 
     "latest number increment" in {
-      LatestNumberDA.findAllExtended[LatestNumber]().foreach(  elem => LatestNumberDA.delete(elem.id) )
+      LatestNumberDA.findAllExtended[LatestNumber]().get.foreach(  elem => LatestNumberDA.delete(elem.id) )
       LatestNumberDA.insert(LatestNumber(1))
-      val id = LatestNumberDA.findAllExtended[LatestNumber]().head.id
+      val id = LatestNumberDA.findAllExtended[LatestNumber]().get.head.id
       LatestNumberDA.update(id, LatestNumber(2))
-      val entry = LatestNumberDA.findAllExtended[LatestNumber]().head.doc
+      val entry = LatestNumberDA.findAllExtended[LatestNumber]().get.head.doc
 
       entry.number mustBe 2
-      LatestNumberDA.findAllExtended[LatestNumber]().foreach(  elem => LatestNumberDA.delete(elem.id) )
-      LatestNumberDA.findAllExtended[LatestNumber]().isEmpty mustBe true
+      LatestNumberDA.findAllExtended[LatestNumber]().get.foreach(  elem => LatestNumberDA.delete(elem.id) )
+      LatestNumberDA.findAllExtended[LatestNumber]().get.isEmpty mustBe true
     }
 
     "connect to rss feed" in {
