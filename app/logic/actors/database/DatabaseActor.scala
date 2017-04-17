@@ -143,29 +143,31 @@ class DatabaseActor @Inject()(system: ActorSystem) extends Actor {
     case GiveSemesterMode => sender ! semesterMode
 
     case SyncDatabase =>
-      try {
-        Logger.debug("try syncing the database")
-        val existingNews = NewsEntryDA.findAllExtended[NewsEntry]().get
+      if(databaseIsReady) {
+        try {
+          Logger.debug("try syncing the database")
+          val existingNews = NewsEntryDA.findAllExtended[NewsEntry]().get
 
-        NewsEntryDA.delete(existingNews.map(_.id))
-        newsEntry.foreach(NewsEntryDA.insert)
+          NewsEntryDA.delete(existingNews.map(_.id))
+          newsEntry.foreach(NewsEntryDA.insert)
 
-        val existingNumber = LatestNumberDA.findAllExtended[LatestNumber]().get
-        LatestNumberDA.delete(existingNumber.map(_.id))
-        LatestNumberDA.insert(latestNumber)
+          val existingNumber = LatestNumberDA.findAllExtended[LatestNumber]().get
+          LatestNumberDA.delete(existingNumber.map(_.id))
+          LatestNumberDA.insert(latestNumber)
 
-        val existingScheduleDate = ScheduleDateDA.findAllExtended[ScheduleDate]().get
-        ScheduleDateDA.delete(existingScheduleDate.map(_.id))
-        ScheduleDateDA.insert(scheduleDate)
+          val existingScheduleDate = ScheduleDateDA.findAllExtended[ScheduleDate]().get
+          ScheduleDateDA.delete(existingScheduleDate.map(_.id))
+          ScheduleDateDA.insert(scheduleDate)
 
-        val existingSemesterMode = SemesterModeDA.findAllExtended[SemesterMode]().get
-        SemesterModeDA.delete(existingSemesterMode.map(_.id))
-        SemesterModeDA.insert(semesterMode)
+          val existingSemesterMode = SemesterModeDA.findAllExtended[SemesterMode]().get
+          SemesterModeDA.delete(existingSemesterMode.map(_.id))
+          SemesterModeDA.insert(semesterMode)
 
-        Logger.debug("Database synced")
-      } catch {
-        case e: Exception =>
-          Logger.debug("error on syncing, trying it later", e)
+          Logger.debug("Database synced")
+        } catch {
+          case e: Exception =>
+            Logger.debug("error on syncing, trying it later", e)
+        }
       }
     case DeleteEntry(entry) =>
       newsEntry = newsEntry.filterNot( _ == entry )
