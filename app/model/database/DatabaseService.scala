@@ -2,10 +2,8 @@ package model.database
 
 import com.ning.http.client.AsyncHttpClientConfig
 import com.ning.http.client.Realm.{AuthScheme, RealmBuilder}
-import controllers.CourseName
 import jp.co.bizreach.elasticsearch4s._
 import model.news.{LatestNumber, NewsEntry}
-import model.schedule.data.{Group, Lecture, Schedule}
 import model.schedule.meta.{ScheduleDate, SemesterMode}
 import org.elasticsearch.action.search.SearchRequestBuilder
 import play.api.Logger
@@ -23,11 +21,12 @@ sealed trait DatabaseService[A <: AnyRef] {
   /** config for database scheme */
   val config: ESConfig = "spirit-play" / this.getClass.getSimpleName
 
+  @throws[Exception]
   def apply[A](action: ESClient => A): A = {
 
     val systemEnv = System.getenv()
 
-    val realm = if(systemEnv.get("ELASTIC_PRINCIPAL") != null) {
+    val realm = if (systemEnv.get("ELASTIC_PRINCIPAL") != null) {
       new RealmBuilder()
         .setPrincipal(systemEnv.get("ELASTIC_PRINCIPAL")).setPassword(systemEnv.get("ELASTIC_PASSWORD"))
         .setUsePreemptiveAuth(true).setScheme(AuthScheme.BASIC)
@@ -38,13 +37,14 @@ sealed trait DatabaseService[A <: AnyRef] {
 
     ESClient.using(systemEnv.getOrDefault("ELASTICSEARCH_URL", "http://localhost:9200"), config = new AsyncHttpClientConfig.Builder()
       .setRealm(realm)
-      .build() ) {
+      .build()) {
       client =>
         val result = action(client)
         result
     }
   }
 
+  @throws[Exception]
   def insert(value: A): Either[Map[String, Any], Map[String, Any]] = {
     apply {
       implicit client =>
@@ -55,28 +55,30 @@ sealed trait DatabaseService[A <: AnyRef] {
     }
   }
 
+  @throws[Exception]
   def insert(values: Traversable[A]) {
     val notInserted = ListBuffer[A]()
     values.foreach {
       v =>
         apply {
           implicit client =>
-          val res = client.insert(config,v)
-          res match {
-            case Left(_) =>
-              Thread.sleep(1000)
-              notInserted += v
-            case _ =>
-          }
+            val res = client.insert(config, v)
+            res match {
+              case Left(_) =>
+                Thread.sleep(1000)
+                notInserted += v
+              case _ =>
+            }
         }
     }
-    if(notInserted.nonEmpty) {
+    if (notInserted.nonEmpty) {
       Logger.debug("retry inserting: " + notInserted)
       insert(notInserted)
     }
     apply(_.refresh(config))
   }
 
+  @throws[Exception]
   def insertJson(json: String): Either[Map[String, Any], Map[String, Any]] = {
     apply {
       implicit client =>
@@ -85,6 +87,7 @@ sealed trait DatabaseService[A <: AnyRef] {
     }
   }
 
+  @throws[Exception]
   def update(id: String, entity: A): Either[Map[String, Any], Map[String, Any]] = {
     apply {
       implicit client =>
@@ -93,6 +96,7 @@ sealed trait DatabaseService[A <: AnyRef] {
         result
     }
   }
+
 
   def updateJson(id: String, json: String): Either[Map[String, Any], Map[String, Any]] = {
     apply {
@@ -103,6 +107,7 @@ sealed trait DatabaseService[A <: AnyRef] {
     }
   }
 
+
   def delete(id: String): Either[Map[String, Any], Map[String, Any]] = {
     apply {
       implicit client =>
@@ -112,19 +117,21 @@ sealed trait DatabaseService[A <: AnyRef] {
     }
   }
 
+
   def delete(ids: Traversable[String]): Unit = {
-    ids.foreach{
-      id=>
-        apply{
+    ids.foreach {
+      id =>
+        apply {
           implicit client =>
-            client.delete(config,id)
+            client.delete(config, id)
         }
     }
-    apply{
+    apply {
       implicit client =>
         client.refresh(config)
     }
   }
+
 
   def find[T](f: SearchRequestBuilder => Unit)(implicit c: ClassTag[T]): Option[(String, T)] = {
     apply {
@@ -133,40 +140,49 @@ sealed trait DatabaseService[A <: AnyRef] {
     }
   }
 
-  def findAsList[T](f: SearchRequestBuilder => Unit)(implicit c: ClassTag[T]): List[(String, T)] = {
-    apply {
-      implicit client =>
-        client.findAsList[T](config)(f)
+  def findAsList[T](f: SearchRequestBuilder => Unit)(implicit c: ClassTag[T]): Option[List[(String, T)]] = {
+    try {
+      Some(apply {
+        implicit client =>
+          client.findAsList[T](config)(f)
+      })
+    } catch {
+      case e: Exception =>
+        Logger.debug("error", e)
+        None
     }
   }
 
-  def list[T](f: SearchRequestBuilder => Unit)(implicit c: ClassTag[T]): List[T] = {
+
+  def list[T](f: SearchRequestBuilder => Unit)(implicit c: ClassTag[T]): Option[List[T]] = {
     try {
-      apply {
+      Some(apply {
         implicit client =>
           client.list[T](config)(f).list.map(_.doc)
-      }
+      })
     } catch {
-      case ex: Exception =>
-        Logger.error("No Index", ex)
-        List[T]()
+      case e: Exception =>
+        Logger.debug("error", e)
+        None
     }
   }
 
-  def listExtended[T](f: SearchRequestBuilder => Unit)(implicit c: ClassTag[T]): List[ESSearchResultItem[T]] = {
+
+  def listExtended[T](f: SearchRequestBuilder => Unit)(implicit c: ClassTag[T]): Option[List[ESSearchResultItem[T]]] = {
     try {
-      apply {
+      Some(apply {
         implicit client =>
           client.list[T](config)(f).list
-      }
+      })
     } catch {
-      case ex: Exception =>
-        Logger.error("No Index", ex)
-        List[ESSearchResultItem[T]]()
+      case e: Exception =>
+        Logger.debug("error", e)
+        None
     }
   }
 
-  def findAll[T: ClassTag](): List[T] = {
+
+  def findAll[T: ClassTag](): Option[List[T]] = {
     list[T] {
       searcher =>
         searcher.setQuery(matchAllQuery)
@@ -174,7 +190,7 @@ sealed trait DatabaseService[A <: AnyRef] {
     }
   }
 
-  def findAllExtended[T: ClassTag](): List[ESSearchResultItem[T]] = {
+  def findAllExtended[T: ClassTag](): Option[List[ESSearchResultItem[T]]] = {
     listExtended[T] {
       searcher =>
         searcher.setQuery(matchAllQuery)
@@ -182,12 +198,14 @@ sealed trait DatabaseService[A <: AnyRef] {
     }
   }
 
+
   def findById[T: ClassTag](id: String): T = {
     find[T] {
       searcher =>
         searcher.setQuery(termQuery("_id", id))
     }.get._2
   }
+
 
   def findByIdOption[T: ClassTag](id: String): Option[T] = {
     find[T] {

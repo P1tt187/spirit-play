@@ -75,6 +75,8 @@ object DatabaseActor {
 
   case class InsertNewsEntry(entry: NewsEntry)
 
+  case class DeleteEntry(entry: NewsEntry)
+
   /** sync entrys with real database */
   case object SyncDatabase
 
@@ -96,20 +98,21 @@ class DatabaseActor @Inject()(system: ActorSystem) extends Actor {
     case StartUp =>
       Logger.debug("Database starting up")
       try {
-        val (id, lLatestNumber) = LatestNumberDA.findAllExtended[LatestNumber]().headOption match {
+
+        newsEntry = NewsEntryDA.findAll[NewsEntry]().get
+        semesterMode = SemesterModeDA.findAll[SemesterMode]().get.headOption match {
+          case Some(mode) => mode
+          case None => SemesterMode(EMode.SUMMER.name())
+        }
+        scheduleDate = ScheduleDateDA.findAll[ScheduleDate]().get.headOption match {
+          case Some(d) => d
+          case None => ScheduleDate(new DateTime())
+        }
+        val (id, lLatestNumber) = LatestNumberDA.findAllExtended[LatestNumber]().get.headOption match {
           case None => ("", LatestNumber(0))
           case Some(n) => (n.id, n.doc)
         }
         latestNumber = lLatestNumber
-        newsEntry = NewsEntryDA.findAll[NewsEntry]()
-        semesterMode = SemesterModeDA.findAll[SemesterMode]().headOption match {
-          case Some(mode) => mode
-          case None => SemesterMode(EMode.SUMMER.name())
-        }
-        scheduleDate = ScheduleDateDA.findAll[ScheduleDate]().headOption match {
-          case Some(d) => d
-          case None => ScheduleDate(new DateTime())
-        }
         databaseIsReady = true
         Logger.debug("successfully starting up")
       } catch {
@@ -136,33 +139,36 @@ class DatabaseActor @Inject()(system: ActorSystem) extends Actor {
     case GiveLectures => sender ! Lectures(lectures)
     case GiveScheduleDate => sender ! scheduleDate
     case GiveSchedules => sender ! Schedules(schedule)
-    case GiveGroups=>sender ! Groups(groups)
+    case GiveGroups => sender ! Groups(groups)
     case GiveSemesterMode => sender ! semesterMode
 
     case SyncDatabase =>
       try {
         Logger.debug("try syncing the database")
-        val existingNews = NewsEntryDA.findAllExtended[NewsEntry]()
+        val existingNews = NewsEntryDA.findAllExtended[NewsEntry]().get
+
         NewsEntryDA.delete(existingNews.map(_.id))
         newsEntry.foreach(NewsEntryDA.insert)
 
-        val existingNumber = LatestNumberDA.findAllExtended[LatestNumber]()
+        val existingNumber = LatestNumberDA.findAllExtended[LatestNumber]().get
         LatestNumberDA.delete(existingNumber.map(_.id))
         LatestNumberDA.insert(latestNumber)
 
-        val existingScheduleDate = ScheduleDateDA.findAllExtended[ScheduleDate]()
+        val existingScheduleDate = ScheduleDateDA.findAllExtended[ScheduleDate]().get
         ScheduleDateDA.delete(existingScheduleDate.map(_.id))
         ScheduleDateDA.insert(scheduleDate)
 
-        val existingSemesterMode = SemesterModeDA.findAllExtended[SemesterMode]()
+        val existingSemesterMode = SemesterModeDA.findAllExtended[SemesterMode]().get
         SemesterModeDA.delete(existingSemesterMode.map(_.id))
         SemesterModeDA.insert(semesterMode)
+
         Logger.debug("Database synced")
       } catch {
-        case e:Exception =>
-          Logger.debug("error on syncing, trying it later",e)
+        case e: Exception =>
+          Logger.debug("error on syncing, trying it later", e)
       }
-
+    case DeleteEntry(entry) =>
+      newsEntry = newsEntry.filterNot( _ == entry )
   }
 
 }

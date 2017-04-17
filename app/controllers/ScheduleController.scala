@@ -82,11 +82,8 @@ class ScheduleController @Inject()(mSchedule: MSchedule) extends AbstractControl
         val lectures = mSchedule.getSchedule().filter(l => courses.exists(c => l.course.contains(c)))
         val timeRanges = mSchedule.getTimeRages(lectures)
         val weekDays = mSchedule.getWeekdays(lectures)
+        val scheduleDate = mSchedule.getScheduleDate()
 
-        val scheduleDate = ScheduleDateDA.findAll[ScheduleDate]().headOption match {
-          case Some(sd) => sd
-          case None => ScheduleDate(new DateTime())
-        }
         Ok(personalSchedule(Messages("SCHEDULE.PERSONALSCHEDULE"), scheduleDate.date, getSemesterMode(), timeRanges, weekDays, lectures))
     }
   }

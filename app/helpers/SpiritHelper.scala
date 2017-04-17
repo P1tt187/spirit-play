@@ -2,13 +2,19 @@ package helpers
 
 import javax.inject._
 
+import akka.actor.ActorRef
 import model.database.SemesterModeDA
 import model.schedule.meta.EMode._
 import model.schedule.meta.{EMode, SemesterMode}
 import play.api.{Configuration, Environment, Logger}
 
 import scala.collection.JavaConversions._
+import scala.concurrent.Await
 import scala.concurrent.duration._
+import akka.actor._
+import akka.pattern.ask
+import akka.util.Timeout
+import logic.actors.database.DatabaseActor.GiveSemesterMode
 
 /**
   * @author fabian 
@@ -31,6 +37,10 @@ trait SpiritHelper {
 
   @Inject()
   protected var sessionCache: SessionCache = null
+
+  @Inject()
+  @Named("databaseActor")
+  protected var databaseActor:ActorRef = null
 
   /** current semester filtered by semestermode */
   protected def courseNames: List[(String, List[String])] = {
@@ -86,10 +96,8 @@ trait SpiritHelper {
     * can be summer or winter */
   def getSemesterMode() = {
     semesterModeCache.getOrElse("mode", 1 day) {
-      val mode = SemesterModeDA.findAll[SemesterMode]().headOption match {
-        case Some(mode) => mode
-        case None => SemesterMode(EMode.SUMMER.name())
-      }
+      implicit val timeout = Timeout(30 seconds)
+      val mode = Await.result(databaseActor ? GiveSemesterMode, 30 seconds).asInstanceOf[SemesterMode]
       Logger.debug(mode.toString)
       semesterModeCache.set("mode", mode)
       EMode.valueOf(mode.mode)
