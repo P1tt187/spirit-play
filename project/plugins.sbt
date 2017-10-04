@@ -1,5 +1,5 @@
 // The Play plugin
-addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.5.13")
+addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.6.5")
 
 // web plugins
 
@@ -15,9 +15,10 @@ addSbtPlugin("com.typesafe.sbt" % "sbt-digest" % "1.1.0")
 
 addSbtPlugin("com.typesafe.sbt" % "sbt-mocha" % "1.1.0")
 
-addSbtPlugin("org.irundaia.sbt" % "sbt-sassify" % "1.4.2")
+//addSbtPlugin("org.irundaia.sbt" % "sbt-sassify" % "1.4.9")
 
 addSbtPlugin("com.eed3si9n" % "sbt-buildinfo" % "0.6.1")
 
 addSbtPlugin("com.heroku" % "sbt-heroku" % "1.0.1")
 
+addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % "1.2.0")

@@ -2,9 +2,10 @@ package helpers
 
 import javax.inject.{Inject, Singleton}
 
-import play.api.cache.{CacheApi, _}
+import play.api.cache._
 import play.api.mvc.{Action, AnyContent}
 
+import scala.concurrent.Future
 import scala.concurrent.duration._
 import scala.reflect.ClassTag
 
@@ -14,7 +15,7 @@ import scala.reflect.ClassTag
   */
 trait CacheHelper {
 
-  protected var cache: CacheApi = null
+  protected var cache: AsyncCacheApi = null
   private val keys = scala.collection.mutable.HashSet[String]()
 
   /**
@@ -35,7 +36,7 @@ trait CacheHelper {
     * @param key Item key.
     * @return result as Option[T]
     */
-  def get[T: ClassTag](key: String): Option[T] = {
+  def get[T: ClassTag](key: String): Future[Option[T]] = {
     cache.get(key)
   }
 
@@ -54,8 +55,8 @@ trait CacheHelper {
     * @param expiration expiration period in seconds.
     * @param orElse     The default function to invoke if the value was not found in cache.
     */
-  def getOrElse[A: ClassTag](key: String, expiration: Duration = Duration.Inf)(orElse: => A): A = {
-    cache.getOrElse(key, expiration)(orElse)
+  def getOrElse[A: ClassTag](key: String, expiration: Duration = Duration.Inf)(orElse: => Future[A]): Future[A] = {
+    cache.getOrElseUpdate(key, expiration)(orElse)
   }
 
   /** this will clear the whole session cache */
@@ -76,11 +77,11 @@ trait CacheHelper {
 }
 
 @Singleton
-class SemesterModeCache @Inject()(@NamedCache("semester-mode-cache") semesterModeCache: CacheApi) extends CacheHelper {
+class SemesterModeCache @Inject()(@NamedCache("semester-mode-cache") semesterModeCache: AsyncCacheApi) extends CacheHelper {
   cache = semesterModeCache
 }
 
 @Singleton
-class SessionCache @Inject()(@NamedCache("session-cache") sessionCache: CacheApi) extends CacheHelper {
+class SessionCache @Inject()(@NamedCache("session-cache") sessionCache: AsyncCacheApi) extends CacheHelper {
   cache = sessionCache
 }

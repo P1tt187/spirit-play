@@ -1,18 +1,18 @@
-import com.typesafe.sbt.packager.archetypes.ServerLoader
-import org.joda.time.DateTime
+
+import java.time._
 import sbt.Keys._
 import sbt._
 
 
 name := """spirit-play"""
 
-val date = new DateTime()
+val date = ZonedDateTime.now()
 
-version := date.getYear.toString +"." + (date.getMonthOfYear).toString + "." + sys.env.get("BUILD_NUMBER").getOrElse("00")
+version := date.getYear.toString +"." + (date.getMonth).toString + "." + sys.env.get("BUILD_NUMBER").getOrElse("00")
 
 lazy val scheduleParser = (project in file("subprojects/spirit2-schedule-parser"))
 
-lazy val root = (project in file(".")).enablePlugins(PlayScala, PlayAkkaHttpServer, LinuxPlugin, RpmPlugin,JDKPackagerPlugin).enablePlugins(SbtWeb).disablePlugins(PlayNettyServer).enablePlugins(BuildInfoPlugin).
+lazy val root = (project in file(".")).enablePlugins(PlayScala, PlayAkkaHttpServer, LinuxPlugin, RpmPlugin,JDKPackagerPlugin,SystemdPlugin).enablePlugins(SbtWeb).disablePlugins(PlayNettyServer).enablePlugins(BuildInfoPlugin).
   settings(
     buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
     buildInfoPackage := "meta"
@@ -22,9 +22,13 @@ scalaVersion := "2.11.8"
 
 libraryDependencies ++= Seq(
   filters,
-  cache,
+  cacheApi,
+  ehcache,
   ws,
-  "org.webjars" %% "webjars-play" % "2.5.0",
+  guice,
+  jodaForms,
+  "com.typesafe.play" %% "play-json" % "2.6.0",
+  "org.webjars" %% "webjars-play" % "2.6.1",
   "org.webjars" % "jquery" % "3.1.1",
   "org.webjars" % "bootstrap" % "3.3.7-1",
   "org.webjars" % "bootstrap-select" % "1.12.0",
@@ -45,8 +49,8 @@ resolvers += "scalaz-bintray" at "http://dl.bintray.com/scalaz/releases"
 resolvers += "Sonatype Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/"
 
 
-//routesGenerator := InjectedRoutesGenerator
-routesGenerator := StaticRoutesGenerator
+routesGenerator := InjectedRoutesGenerator
+//routesGenerator := StaticRoutesGenerator
 
 scalacOptions ++= Seq("-feature", "-language:postfixOps", "-language:implicitConversions")
 
@@ -63,8 +67,6 @@ rpmRelease := Option(sys.props("rpm.buildNumber")) getOrElse "1"
 rpmVendor := "http://www.fsi.fh-schmalkalden.de"
 
 rpmUrl := Some("https://github.com/P1tt187/spirit-play")
-
-serverLoading in Rpm := ServerLoader.Systemd
 
 rpmLicense := Some("None")
 

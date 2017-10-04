@@ -1,4 +1,5 @@
 @import model.news.NewsEntry
+@import org.joda.time.DateTime
 @import org.joda.time.format.DateTimeFormat
 @(newsEntry: NewsEntry, newsHost:String)(implicit webJarAssets: WebJarAssets, request: Request[_], m: play.api.i18n.Messages)
 
@@ -43,7 +44,7 @@
       </div>
     </div>
     <div class="panel-footer">
-      @newsEntry.author @df.print(newsEntry.pubDate) <br/>
+      @newsEntry.author @df.print(new DateTime(newsEntry.pubDate)) <br/>
     <a href="@newsEntry.srcLink" target="_blank">Quelle</a> <br/>
       <div data-url="@newsHost@routes.NewsPageController.newsEntry(newsEntry.number)"
       data-title="@newsEntry.title"

@@ -1,6 +1,8 @@
 package model.news
 
-import org.joda.time.DateTime
+
+import java.time.ZonedDateTime
+
 import play.api.libs.json._
 
 /**
@@ -11,4 +13,4 @@ object NewsEntry {
   implicit val newsEntryFormat = Json.format[NewsEntry]
 }
 
-case class NewsEntry(title: String, author: String, newsMessage: String, pubDate: DateTime, srcLink: String, expireDate: DateTime, tags: List[String], number:Long)
+case class NewsEntry(title: String, author: String, newsMessage: String, pubDate: ZonedDateTime, srcLink: String, expireDate: ZonedDateTime, tags: List[String], number:Long)

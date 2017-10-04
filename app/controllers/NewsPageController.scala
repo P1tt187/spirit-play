@@ -7,6 +7,7 @@ import akka.pattern.ask
 import akka.stream.scaladsl.Source
 import logic.actors.database.DatabaseActor.{GiveNewsEntrys, NewsEntrys}
 import model.news.NewsEntry
+import org.joda.time.DateTime
 import org.joda.time.format.ISODateTimeFormat
 import play.api.http.ContentTypes
 import play.api.i18n.Messages
@@ -180,7 +181,7 @@ class NewsPageController @Inject()(materializer: akka.stream.Materializer, @Name
                     {entry.number}
                   </guid>
                   <pubDate>
-                    {ISODateTimeFormat.basicDateTime().print(entry.pubDate)}
+                    {ISODateTimeFormat.basicDateTime().print(new DateTime(entry.pubDate))}
                   </pubDate>
                 </item>
             }}

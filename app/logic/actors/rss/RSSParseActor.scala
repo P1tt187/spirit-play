@@ -1,5 +1,6 @@
 package logic.actors.rss
 
+import java.time.ZonedDateTime
 import java.util.regex.Pattern
 import javax.inject._
 
@@ -143,7 +144,7 @@ class RSSParseActor @Inject()(configuration: Configuration,
   }
 
   def extractEntrys(feedXml: Elem) = {
-    def now = new DateTime()
+    def now = ZonedDateTime.now()
 
     val courseNames = uncachedCourseNames
     (feedXml \\ "item").map {
@@ -153,17 +154,17 @@ class RSSParseActor @Inject()(configuration: Configuration,
         val newsMessage = extractMessage(item)
         val author = (item \\ "contributor") text
 
-        val date: DateTime = extractPubDate(item)
+        val date: ZonedDateTime = extractPubDate(item)
         val expireDate = now.plusMonths(1)
         NewsEntry(title, author, newsMessage, date, srcLink, expireDate, extractTags(title, newsMessage, courseNames), 0)
-    }.toList.sortBy(_.pubDate.getMillis)
+    }.toList.sortBy(_.pubDate.toInstant.toEpochMilli)
   }
 
-  def extractPubDate(item: Node): DateTime = {
+  def extractPubDate(item: Node): ZonedDateTime = {
     val timeZone = DateTimeZone.forID("Europe/Berlin")
     val dateTimeFormat = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mmZ")
 
-    val date = dateTimeFormat.withZone(timeZone).parseDateTime((item \\ "date" text))
+    val date = dateTimeFormat.withZone(timeZone).parseDateTime((item \\ "date" text)).toGregorianCalendar.toZonedDateTime
     date
   }
 
