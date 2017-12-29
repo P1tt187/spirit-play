@@ -5,7 +5,8 @@ import com.ning.http.client.Realm.{AuthScheme, RealmBuilder}
 import jp.co.bizreach.elasticsearch4s._
 import model.news.{LatestNumber, NewsEntry}
 import model.schedule.meta.{ScheduleDate, SemesterMode}
-import org.elasticsearch.action.search.SearchRequestBuilder
+import org.codelibs.elasticsearch.querybuilders.SearchDslBuilder
+
 import play.api.Logger
 
 import scala.collection.mutable.ListBuffer
@@ -133,14 +134,14 @@ sealed trait DatabaseService[A <: AnyRef] {
   }
 
 
-  def find[T](f: SearchRequestBuilder => Unit)(implicit c: ClassTag[T]): Option[(String, T)] = {
+  def find[T](f: SearchDslBuilder => Unit)(implicit c: ClassTag[T]): Option[(String, T)] = {
     apply {
       implicit client =>
         client.find[T](config)(f)
     }
   }
 
-  def findAsList[T](f: SearchRequestBuilder => Unit)(implicit c: ClassTag[T]): Option[List[(String, T)]] = {
+  def findAsList[T](f: SearchDslBuilder => Unit)(implicit c: ClassTag[T]): Option[List[(String, T)]] = {
     try {
       Some(apply {
         implicit client =>
@@ -154,7 +155,7 @@ sealed trait DatabaseService[A <: AnyRef] {
   }
 
 
-  def list[T](f: SearchRequestBuilder => Unit)(implicit c: ClassTag[T]): Option[List[T]] = {
+  def list[T](f: SearchDslBuilder => Unit)(implicit c: ClassTag[T]): Option[List[T]] = {
     try {
       Some(apply {
         implicit client =>
@@ -168,7 +169,7 @@ sealed trait DatabaseService[A <: AnyRef] {
   }
 
 
-  def listExtended[T](f: SearchRequestBuilder => Unit)(implicit c: ClassTag[T]): Option[List[ESSearchResultItem[T]]] = {
+  def listExtended[T](f: SearchDslBuilder => Unit)(implicit c: ClassTag[T]): Option[List[ESSearchResultItem[T]]] = {
     try {
       Some(apply {
         implicit client =>
@@ -185,16 +186,16 @@ sealed trait DatabaseService[A <: AnyRef] {
   def findAll[T: ClassTag](): Option[List[T]] = {
     list[T] {
       searcher =>
-        searcher.setQuery(matchAllQuery)
-        searcher.setSize(10000)
+        searcher.query(matchAllQuery)
+        searcher.size(10000)
     }
   }
 
   def findAllExtended[T: ClassTag](): Option[List[ESSearchResultItem[T]]] = {
     listExtended[T] {
       searcher =>
-        searcher.setQuery(matchAllQuery)
-        searcher.setSize(10000)
+        searcher.query(matchAllQuery)
+        searcher.size(10000)
     }
   }
 
@@ -202,7 +203,7 @@ sealed trait DatabaseService[A <: AnyRef] {
   def findById[T: ClassTag](id: String): T = {
     find[T] {
       searcher =>
-        searcher.setQuery(termQuery("_id", id))
+        searcher.query(termQuery("_id", id))
     }.get._2
   }
 
@@ -210,7 +211,7 @@ sealed trait DatabaseService[A <: AnyRef] {
   def findByIdOption[T: ClassTag](id: String): Option[T] = {
     find[T] {
       searcher =>
-        searcher.setQuery(termQuery("_id", id))
+        searcher.query(termQuery("_id", id))
     } match {
       case Some(x) => Some(x._2)
       case None => None

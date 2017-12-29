@@ -3,6 +3,7 @@ package logic.actors.database
 import javax.inject.{Inject, Singleton}
 
 import akka.actor.{Actor, ActorSystem}
+import jp.co.bizreach.elasticsearch4s.ESSearchResultItem
 import logic.actors.database.DatabaseActor._
 import model.database.{LatestNumberDA, NewsEntryDA, ScheduleDateDA, SemesterModeDA}
 import model.news.{LatestNumber, NewsEntry}
@@ -99,16 +100,17 @@ class DatabaseActor @Inject()(system: ActorSystem) extends Actor {
       Logger.debug("Database starting up")
       try {
 
-        newsEntry = NewsEntryDA.findAll[NewsEntry]().get
-        semesterMode = SemesterModeDA.findAll[SemesterMode]().get.headOption match {
+        newsEntry = NewsEntryDA.findAll[NewsEntry]().getOrElse(List[NewsEntry]())
+
+        semesterMode = SemesterModeDA.findAll[SemesterMode]().getOrElse(List[SemesterMode]()).headOption match {
           case Some(mode) => mode
           case None => SemesterMode(EMode.SUMMER.name())
         }
-        scheduleDate = ScheduleDateDA.findAll[ScheduleDate]().get.headOption match {
+        scheduleDate = ScheduleDateDA.findAll[ScheduleDate]().getOrElse(List[ScheduleDate]()).headOption match {
           case Some(d) => d
           case None => ScheduleDate(new DateTime())
         }
-        val (id, lLatestNumber) = LatestNumberDA.findAllExtended[LatestNumber]().get.headOption match {
+        val (id, lLatestNumber) = LatestNumberDA.findAllExtended[LatestNumber]().getOrElse(List[ESSearchResultItem[LatestNumber]]()).headOption match {
           case None => ("", LatestNumber(0))
           case Some(n) => (n.id, n.doc)
         }
